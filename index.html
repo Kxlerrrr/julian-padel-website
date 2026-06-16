@@ -38,10 +38,10 @@
                     <div class="hidden md:flex space-x-6 font-medium text-sm lg:text-base">
                         <a href="#boeken" class="hover:text-padelGreen transition">{{ t('nav.book') }}</a>
                         <a href="#tarieven" class="hover:text-padelGreen transition">{{ t('nav.rates') }}</a>
+                        <a href="#trainer" class="hover:text-padelGreen transition">Over Julian</a>
                         <a href="#kids" class="hover:text-padelGreen transition">Kids Academy</a>
                         <a href="#rittenkaarten" class="hover:text-padelGreen transition">Rittenkaarten</a>
                         <a href="#clinics" class="hover:text-padelGreen transition">Bedrijfsclinics</a>
-                        <a href="#reviews" class="hover:text-padelGreen transition">{{ t('nav.reviews') }}</a>
                         <a href="#contact" class="hover:text-padelGreen transition">{{ t('nav.contact') }}</a>
                     </div>
 
@@ -72,7 +72,7 @@
                     Breng Jouw Padelspel Naar Het <span class="text-transparent bg-clip-text bg-gradient-to-r from-green-500 to-padelGreen">Hoogste Niveau</span>
                 </h1>
                 <p class="text-lg md:text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto mb-10">
-                    Professionele trainingen op maat voor volwassenen én de sterren van de toekomst in onze Kids Academy. Plan vandaag nog je sessie.
+                    Professionele trainingen op maat door hoofdtrainer Julian. Voor beginners, gevorderden en de sterren van de toekomst.
                 </p>
                 <div class="flex justify-center gap-4">
                     <a href="#boeken" class="bg-padelGreen text-black font-bold px-8 py-4 rounded-xl shadow-lg hover:shadow-padelGreen/20 hover:-translate-y-0.5 transition duration-200">
@@ -153,6 +153,82 @@
                         Nu Afrekenen via Stripe (€{{ totaleLesPrijs }},00)
                     </button>
                 </div>
+            </div>
+        </section>
+
+        <!-- HOOFDTRAINER INFORMATIE SECTIE ("OVER JULIAN") -->
+        <section id="trainer" class="max-w-6xl mx-auto px-4 py-20 border-t border-gray-200 dark:border-gray-700">
+            <div class="grid lg:grid-cols-12 gap-12 items-center">
+                
+                <!-- Linkerzijde: Pro-Paspoort Visual -->
+                <div class="lg:col-span-5 bg-gradient-to-br from-black to-gray-900 dark:from-gray-800 dark:to-gray-950 p-8 rounded-3xl text-white shadow-2xl relative overflow-hidden border border-gray-800">
+                    <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-padelGreen/10 rounded-full blur-2xl"></div>
+                    
+                    <!-- Trainer Badge & Avatar-placeholder -->
+                    <div class="flex items-center gap-4 mb-6">
+                        <div class="w-20 h-20 bg-padelGreen rounded-full flex items-center justify-center text-black text-3xl font-black">
+                            JP
+                        </div>
+                        <div>
+                            <span class="text-[10px] bg-padelGreen text-black px-2 py-0.5 rounded font-black uppercase tracking-wider">Head Coach</span>
+                            <h3 class="text-2xl font-black tracking-tight mt-0.5">Julian</h3>
+                            <p class="text-xs text-gray-400">KNLTB Licentie A & B Gecertificeerd</p>
+                        </div>
+                    </div>
+
+                    <!-- Spelersstatistieken -->
+                    <div class="space-y-4 border-t border-gray-800 pt-4 text-sm">
+                        <div class="flex justify-between"><span class="text-gray-400">Ervaring:</span><span class="font-bold">6+ Jaar Fulltime Coach</span></div>
+                        <div class="flex justify-between"><span class="text-gray-400">Eigen Speelsterkte:</span><span class="font-bold text-padelGreen">Niveau 1.5 (Topklasse)</span></div>
+                        <div class="flex justify-between"><span class="text-gray-400">Favoriete Racket:</span><span class="font-bold">Pro Carbon Edition</span></div>
+                        <div class="flex justify-between"><span class="text-gray-400">Locaties:</span><span class="font-bold text-right">Amsterdam / Utrecht</span></div>
+                    </div>
+
+                    <!-- Specialiteiten Progress Bars -->
+                    <div class="mt-6 pt-4 border-t border-gray-800 space-y-3">
+                        <h4 class="text-xs font-black uppercase text-padelGreen tracking-wider">Expertise Focus</h4>
+                        <div>
+                            <div class="flex justify-between text-xs mb-1"><span>Tactisch Positiespel</span><span>95%</span></div>
+                            <div class="w-full bg-gray-800 h-1.5 rounded-full"><div class="bg-padelGreen h-1.5 rounded-full" style="width: 95%"></div></div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-xs mb-1"><span>Techniekanalyse (Bandeja/Víbora)</span><span>90%</span></div>
+                            <div class="w-full bg-gray-800 h-1.5 rounded-full"><div class="bg-padelGreen h-1.5 rounded-full" style="width: 90%"></div></div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-xs mb-1"><span>Wedstrijdmentaliteit & Coaching</span><span>88%</span></div>
+                            <div class="w-full bg-gray-800 h-1.5 rounded-full"><div class="bg-padelGreen h-1.5 rounded-full" style="width: 88%"></div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Rechterzijde: Biografie & Filosofie -->
+                <div class="lg:col-span-7 space-y-6">
+                    <span class="text-xs font-bold text-padelGreen uppercase tracking-widest bg-padelGreen/10 px-3 py-1 rounded-md">Ontmoet je Trainer</span>
+                    <h2 class="text-4xl font-black tracking-tight">"Mijn missie is om jouw padel-IQ te verhogen."</h2>
+                    <p class="text-gray-600 dark:text-gray-300 leading-relaxed">
+                        Hoi! Ik ben Julian. Na jarenlang op hoog niveau tennis en padel te hebben gespeeld, heb ik me volledig toegelegd op het coachen. Padel is een denksport; het gaat niet alleen om hoe hard je slaat, maar juist om **waar** en **wanneer** je de bal plaatst. 
+                    </p>
+                    <p class="text-gray-600 dark:text-gray-300 leading-relaxed">
+                        Of je nu voor het eerst een racket vasthoudt in de Kids Academy, met je vaste partner de dubbel-tactiek wilt aanscherpen, of als bedrijf een onvergetelijke clinic wilt beleven: ik hanteer een moderne, video-ondersteunde methode waarbij plezier en progressie hand in hand gaan.
+                    </p>
+                    
+                    <div class="grid grid-cols-3 gap-4 pt-4 border-t border-gray-200 dark:border-gray-700 text-center">
+                        <div class="p-3 bg-gray-100 dark:bg-gray-800 rounded-xl">
+                            <div class="text-2xl font-black text-padelGreen">500+</div>
+                            <div class="text-[10px] uppercase text-gray-400 font-bold mt-1">Spelers Getraind</div>
+                        </div>
+                        <div class="p-3 bg-gray-100 dark:bg-gray-800 rounded-xl">
+                            <div class="text-2xl font-black text-padelGreen">100%</div>
+                            <div class="text-[10px] uppercase text-gray-400 font-bold mt-1">Toewijding</div>
+                        </div>
+                        <div class="p-3 bg-gray-100 dark:bg-gray-800 rounded-xl">
+                            <div class="text-2xl font-black text-padelGreen">A&B</div>
+                            <div class="text-[10px] uppercase text-gray-400 font-bold mt-1">Licenties</div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </section>
 
@@ -313,29 +389,12 @@
             </div>
         </section>
 
-        <!-- REVIEWS SECTIE -->
-        <section id="reviews" class="bg-gray-100 dark:bg-gray-800/30 py-16">
-            <div class="max-w-6xl mx-auto px-4">
-                <h2 class="text-3xl font-black text-center mb-12">Wat Spelers Zeggen</h2>
-                <div class="grid md:grid-cols-2 gap-8">
-                    <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow">
-                        <p class="italic text-gray-600 dark:text-gray-300">"Julian ziet direct wat er schort aan je bandeja. Binnen 3 lessen speel ik met veel meer controle en spin!"</p>
-                        <div class="mt-4 font-bold text-padelGreen">- Sander V. (Competitiespeler)</div>
-                    </div>
-                    <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow">
-                        <p class="italic text-gray-600 dark:text-gray-300">"Het boekingssysteem werkt vlekkeloos op mijn mobiel. Direct betaald via iDEAL en de afspraak stond meteen in mijn eigen agenda."</p>
-                        <div class="mt-4 font-bold text-padelGreen">- Merel de B. (Beginner)</div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
         <!-- CONTACT SECTIE -->
         <footer id="contact" class="bg-black text-white py-16">
             <div class="max-w-6xl mx-auto px-4 grid md:grid-cols-3 gap-12">
                 <div>
                     <h3 class="text-2xl font-black text-padelGreen mb-4">Julian Padel</h3>
-                    <p class="text-gray-400 text-sm">Gecertificeerd padeltrainer beschikbaar voor clinics, privélessen en duo-trainingen in heel Nederland.</p>
+                    <p class="text-gray-400 text-sm">Gecertificeerd padeltrainer beschikbaar voor clinics, privélessen i.s.m. de Kids Academy in heel Nederland.</p>
                 </div>
                 <div>
                     <h4 class="font-bold text-lg mb-4">Contact Details</h4>
@@ -461,11 +520,11 @@
                 // Meertaligheid Woordenboek
                 const translations = {
                     nl: {
-                        'nav.book': 'Plan een Les', 'nav.rates': 'Tarieven', 'nav.reviews': 'Reviews', 'nav.contact': 'Contact',
+                        'nav.book': 'Plan een Les', 'nav.rates': 'Tarieven', 'nav.contact': 'Contact',
                         'hero.cta': 'Boek Nu Een Padelles', 'booking.title': 'Online Agenda & Reserveringen', 'auth.login': 'Inloggen'
                     },
                     en: {
-                        'nav.book': 'Book a Lesson', 'nav.rates': 'Rates', 'nav.reviews': 'Reviews', 'nav.contact': 'Contact',
+                        'nav.book': 'Book a Lesson', 'nav.rates': 'Rates', 'nav.contact': 'Contact',
                         'hero.cta': 'Book Padel Lesson Now', 'booking.title': 'Online Calendar & Bookings', 'auth.login': 'Login'
                     }
                 };
