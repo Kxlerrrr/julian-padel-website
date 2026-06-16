@@ -20,12 +20,8 @@
     </script>
     <!-- Vue 3 (Options API) voor Reactiviteit & Realtime State -->
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-    <!-- jsPDF voor PDF Export Functionaliteit -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <!-- Stripe.js voor Veilige Betalingen -->
     <script src="https://js.stripe.com/v3/"></script>
-    <!-- Lucide Icons voor strakke interface iconen -->
-    <script src="https://unpkg.com/lucide@latest"></script>
 </head>
 <body class="bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-gray-100 transition-colors duration-300">
 
@@ -43,7 +39,6 @@
                         <a href="#boeken" class="hover:text-padelGreen transition">{{ t('nav.book') }}</a>
                         <a href="#tarieven" class="hover:text-padelGreen transition">{{ t('nav.rates') }}</a>
                         <a href="#reviews" class="hover:text-padelGreen transition">{{ t('nav.reviews') }}</a>
-                        <a href="#dashboard" class="hover:text-padelGreen transition">{{ t('nav.dashboard') }}</a>
                         <a href="#contact" class="hover:text-padelGreen transition">{{ t('nav.contact') }}</a>
                     </div>
 
@@ -156,65 +151,9 @@
                         <ul class="space-y-2 text-sm opacity-90">
                             <li>✓ Inclusief Rackets & Ballen</li>
                             <li>✓ Video Analyse</li>
-                            <li>✓ Directe Google Calender Sync</li>
+                            <li>✓ Directe Google Calendar Sync</li>
                         </ul>
                     </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- ANALYTICS TRAINER DASHBOARD -->
-        <section id="dashboard" class="max-w-6xl mx-auto px-4 py-20">
-            <div class="bg-white dark:bg-gray-800 p-8 rounded-3xl shadow-xl border border-gray-200 dark:border-gray-700">
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
-                    <div>
-                        <h2 class="text-2xl font-black">Trainer Dashboard (Julian)</h2>
-                        <p class="text-sm text-gray-500">Realtime statistieken & analytics</p>
-                    </div>
-                    <button @click="exportToPDF" class="flex items-center gap-2 bg-blue-600 text-white font-bold px-4 py-2.5 rounded-xl hover:bg-blue-700 transition text-sm">
-                        <span>📄</span> {{ t('dashboard.export') }} (PDF)
-                    </button>
-                </div>
-
-                <!-- KPI Kaarten -->
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
-                    <div class="p-6 bg-gray-50 dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-700">
-                        <p class="text-sm text-gray-400 font-medium uppercase tracking-wider">Totale Omzet (Maand)</p>
-                        <p class="text-3xl font-black text-green-500 mt-2">€ 4.320,00</p>
-                    </div>
-                    <div class="p-6 bg-gray-50 dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-700">
-                        <p class="text-sm text-gray-400 font-medium uppercase tracking-wider">Geboekte Uren</p>
-                        <p class="text-3xl font-black text-padelGreen mt-2">72 Uur</p>
-                    </div>
-                    <div class="p-6 bg-gray-50 dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-700">
-                        <p class="text-sm text-gray-400 font-medium uppercase tracking-wider">Bezetting</p>
-                        <p class="text-3xl font-black text-blue-500 mt-2">84.2 %</p>
-                    </div>
-                </div>
-
-                <!-- Recente Boekingen & Realtime logs -->
-                <h3 class="font-bold mb-4 flex items-center gap-2">
-                    <span class="w-2 h-2 rounded-full bg-green-500 animate-ping"></span> Realtime Boekingen Synchronisatie
-                </h3>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-sm">
-                        <thead class="bg-gray-50 dark:bg-gray-900 text-gray-400 uppercase text-[11px]">
-                            <tr>
-                                <th class="p-4">Klant</th>
-                                <th class="p-4">Datum & Tijd</th>
-                                <th class="p-4">Status</th>
-                                <th class="p-4">Google Calendar</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-100 dark:divide-gray-700">
-                            <tr v-for="boeking in mockBoekingen" :key="boeking.id" class="hover:bg-gray-50/50 dark:hover:bg-gray-900/50">
-                                <td class="p-4 font-semibold">{{ boeking.naam }}</td>
-                                <td class="p-4">{{ boeking.datum }} om {{ boeking.tijd }}</td>
-                                <td class="p-4"><span class="px-2 py-1 rounded bg-green-500/20 text-green-500 font-medium text-xs">Betaald</span></td>
-                                <td class="p-4 text-xs text-blue-400 font-mono">✓ Gecynchroniseerd</td>
-                            </tr>
-                        </tbody>
-                    </table>
                 </div>
             </div>
         </section>
@@ -299,7 +238,7 @@
             </div>
         </div>
 
-        <!-- PUSH NOTIFICATIE POPUP (Offline sync & push alert simulatie) -->
+        <!-- PUSH NOTIFICATIE POPUP -->
         <div v-if="notification" class="fixed bottom-6 right-6 z-50 bg-gray-900 text-white dark:bg-white dark:text-black p-4 rounded-2xl shadow-2xl flex items-center gap-3 border border-padelGreen animate-bounce">
             <span class="text-xl">🔔</span>
             <div>
@@ -336,21 +275,15 @@
                     { titel: "Groepstraining", prijs: "€ 20,00", beschrijving: "Met 4 personen wedstrijd-situaties bootsen en spelplezier optimaliseren. (Prijs p.p.)" }
                 ];
 
-                const mockBoekingen = ref([
-                    { id: 1, naam: "Daan de Wit", datum: "2026-06-18", tijd: "10:00 - 11:00" },
-                    { id: 2, naam: "Lotte Meijer", datum: "2026-06-18", tijd: "14:00 - 15:00" },
-                    { id: 3, naam: "Thomas van Dijk", datum: "2026-06-19", tijd: "19:00 - 20:00" }
-                ]);
-
                 // Meertaligheid Woordenboek
                 const translations = {
                     nl: {
-                        'nav.book': 'Plan een Les', 'nav.rates': 'Tarieven', 'nav.reviews': 'Reviews', 'nav.dashboard': 'Dashboard', 'nav.contact': 'Contact',
-                        'hero.cta': 'Boek Nu Een Padelles', 'booking.title': 'Online Agenda & Reserveringen', 'auth.login': 'Inloggen', 'dashboard.export': 'Exporteer Rapport'
+                        'nav.book': 'Plan een Les', 'nav.rates': 'Tarieven', 'nav.reviews': 'Reviews', 'nav.contact': 'Contact',
+                        'hero.cta': 'Boek Nu Een Padelles', 'booking.title': 'Online Agenda & Reserveringen', 'auth.login': 'Inloggen'
                     },
                     en: {
-                        'nav.book': 'Book a Lesson', 'nav.rates': 'Rates', 'nav.reviews': 'Reviews', 'nav.dashboard': 'Dashboard', 'nav.contact': 'Contact',
-                        'hero.cta': 'Book Padel Lesson Now', 'booking.title': 'Online Calendar & Bookings', 'auth.login': 'Login', 'dashboard.export': 'Export Report'
+                        'nav.book': 'Book a Lesson', 'nav.rates': 'Rates', 'nav.reviews': 'Reviews', 'nav.contact': 'Contact',
+                        'hero.cta': 'Book Padel Lesson Now', 'booking.title': 'Online Calendar & Bookings', 'auth.login': 'Login'
                     }
                 };
 
@@ -366,11 +299,10 @@
                 };
 
                 const generateSlots = () => {
-                    // Simuleer dynamische uren en willekeurige bezetting (offline-proof)
                     const uren = ["09:00 - 10:00", "10:00 - 11:00", "11:00 - 12:00", "14:00 - 15:00", "16:00 - 17:00", "19:00 - 20:00", "20:00 - 21:00"];
                     availableSlots.value = uren.map(tijd => ({
                         time: tijd,
-                        available: Math.random() > 0.25 // 75% kans dat hij vrij is
+                        available: Math.random() > 0.25
                     }));
                 };
 
@@ -382,67 +314,29 @@
                 const handleCheckout = () => {
                     triggerNotification("Stripe Gateway wordt geïnitieerd... (Simulatie)");
                     
-                    // Client-side Stripe checkout initiatie. Vervang 'pk_test_...' met je eigen Stripe Public Key om live te gaan.
-                    const stripe = Stripe('pk_test_51PXXXXXXXXXXXXXXX'); 
-                    
-                    // Omdat we geen actieve backend node-server op Github Pages draaien, 
-                    // wordt de gebruiker direct herleid naar een veilige Stripe betalingsomgeving.
                     setTimeout(() => {
                         alert(`Betalingsverzoek aangemaakt voor ${bookingForm.value.date} om ${bookingForm.value.slot}.\n\nIn een live-omgeving word je nu doorgestuurd naar Stripe via iDEAL / Creditcard.`);
-                        
-                        // Voeg boeking toe aan de lokale state na succes (simuleert webhook response)
-                        mockBoekingen.value.unshift({
-                            id: Date.now(),
-                            naam: user.value ? user.value.name : "Gast Speler",
-                            datum: bookingForm.value.date,
-                            tijd: bookingForm.value.slot
-                        });
                         triggerNotification("Boeking gesynchroniseerd met Google Calendar & Mail Bevestiging verzonden!");
                     }, 1000);
                 };
 
                 const simulateLogin = () => {
-                    user.value = { name: "Julian (Trainer)" };
+                    user.value = { name: "Klant Speler" };
                     showAuthModal.value = false;
                     twoFactorStep.value = false;
-                    triggerNotification("Veilig ingelogd met 2FA!");
-                };
-
-                const exportToPDF = () => {
-                    const { jsPDF } = window.jspdf;
-                    const doc = new jsPDF();
-                    
-                    doc.setFont("helvetica", "bold");
-                    doc.text("Julian Padel - Business Analytics Rapport", 14, 20);
-                    doc.setFont("helvetica", "normal");
-                    doc.text(`Gegenereerd op: ${new Date().toLocaleDateString()}`, 14, 28);
-                    
-                    doc.text("Metriek", 14, 45); doc.text("Waarde", 100, 45);
-                    doc.line(14, 48, 150, 48);
-                    doc.text("Totale Omzet (Maand):", 14, 56); doc.text("EUR 4.320,00", 100, 56);
-                    doc.text("Geboekte Trainingsuren:", 14, 64); doc.text("72 Uur", 100, 64);
-                    doc.text("Gemiddelde Bezetting:", 14, 72); doc.text("84.2 %", 100, 72);
-
-                    doc.save('julian-padel-analytics.pdf');
-                    triggerNotification("PDF Rapport succesvol gedownload!");
+                    triggerNotification("Veilig ingelogd in jouw account met 2FA!");
                 };
 
                 onMounted(() => {
-                    // Check systeemvoorkeur voor darkmode
                     if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
                         toggleDarkMode();
                     }
-                    // Simuleer een push-notificatie bij het opstarten
-                    setTimeout(() => {
-                        triggerNotification("Nieuwe boeking ontvangen van Martijn H. via Google Calendar!");
-                    }, 3000);
                 });
 
                 return {
                     darkMode, toggleDarkMode, lang, toggleLanguage, t,
                     bookingForm, today, availableSlots, generateSlots, handleCheckout,
-                    tarieven, mockBoekingen, showAuthModal, twoFactorStep, simulateLogin, user,
-                    exportToPDF, notification
+                    tarieven, showAuthModal, twoFactorStep, simulateLogin, user, notification
                 };
             }
         }).mount('#app');
