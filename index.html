@@ -56,8 +56,8 @@
                             <span v-else>🌙</span>
                         </button>
                         <!-- Auth Button -->
-                        <button @click="showAuthModal = true" class="bg-black text-white dark:bg-white dark:text-black font-semibold px-4 py-2 rounded-lg text-sm hover:opacity-80 transition">
-                            {{ user ? 'Account' : t('auth.login') }}
+                        <button @click="handleAuthClick" class="bg-black text-white dark:bg-white dark:text-black font-semibold px-4 py-2 rounded-lg text-sm hover:opacity-80 transition">
+                            {{ user ? 'Mijn Dashboard' : t('auth.login') }}
                         </button>
                     </div>
                 </div>
@@ -82,22 +82,111 @@
             </div>
         </header>
 
+        <!-- KLANTENPANEEL / DASHBOARD (Alleen zichtbaar indien ingelogd) -->
+        <section v-if="user" id="dashboard" class="max-w-5xl mx-auto px-4 py-12 mb-12 bg-gradient-to-br from-gray-900 to-gray-800 text-white rounded-3xl shadow-2xl relative overflow-hidden">
+            <div class="absolute -right-16 -top-16 w-48 h-48 bg-padelGreen/10 rounded-full blur-3xl"></div>
+            
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-gray-700 pb-6 mb-8">
+                <div>
+                    <span class="bg-padelGreen text-black text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded">Spelers Portaal</span>
+                    <h2 class="text-3xl font-black tracking-tight mt-1">Welkom terug, {{ user.name }}!</h2>
+                </div>
+                <button @click="logout" class="bg-red-600/80 hover:bg-red-600 text-white font-bold text-xs px-4 py-2 rounded-xl transition">
+                    Uitloggen
+                </button>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-6">
+                <!-- Rittenkaart status -->
+                <div class="bg-gray-800/50 backdrop-blur border border-gray-700 p-6 rounded-2xl flex flex-col justify-between">
+                    <div>
+                        <span class="text-[10px] text-gray-400 font-bold uppercase tracking-wider block mb-1">Rittenkaart Saldo</span>
+                        <div class="text-4xl font-black text-padelGreen">{{ mockDashboard.ritten }} <span class="text-sm font-normal text-gray-400">/ 10 over</span></div>
+                    </div>
+                    <div class="mt-4">
+                        <div class="w-full bg-gray-700 h-2 rounded-full overflow-hidden">
+                            <div class="bg-padelGreen h-full" :style="{ width: (mockDashboard.ritten * 10) + '%' }"></div>
+                        </div>
+                        <p class="text-[11px] text-gray-400 mt-2">Geldig tot: 14 mei 2027</p>
+                    </div>
+                </div>
+
+                <!-- Eerstvolgende boeking -->
+                <div class="bg-gray-800/50 backdrop-blur border border-gray-700 p-6 rounded-2xl flex flex-col justify-between">
+                    <div>
+                        <span class="text-[10px] text-gray-400 font-bold uppercase tracking-wider block mb-1">Volgende Training</span>
+                        <p class="font-bold text-base mt-1 text-white">{{ mockDashboard.boeking }}</p>
+                        <p class="text-xs text-gray-400 mt-0.5">Locatie: Padel Club Amsterdam</p>
+                    </div>
+                    <button @click="triggerNotification('Neem voor wijzigingen binnen 24 uur contact op via WhatsApp.')" class="mt-4 w-full bg-gray-700 hover:bg-gray-650 text-white text-xs font-bold py-2 rounded-xl transition">
+                        Les Verplaatsen
+                    </button>
+                </div>
+
+                <!-- Persoonlijk Video Archief -->
+                <div class="bg-gray-800/50 backdrop-blur border border-gray-700 p-6 rounded-2xl">
+                    <span class="text-[10px] text-gray-400 font-bold uppercase tracking-wider block mb-2">Jouw Video Analyses</span>
+                    <ul class="space-y-2.5">
+                        <li v-for="video in mockDashboard.videos" :key="video.titel" class="flex justify-between items-center text-xs border-b border-gray-700/50 pb-2 last:border-none last:pb-0">
+                            <div>
+                                <p class="font-bold text-gray-200">{{ video.titel }}</p>
+                                <p class="text-[10px] text-gray-500">{{ video.datum }}</p>
+                            </div>
+                            <a href="#" @click.prevent="triggerNotification('Video-analyse module wordt geladen...')" class="text-padelGreen font-bold hover:underline">Bekijken →</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
         <!-- MAIN INTERACTIVE BOOKING SYSTEM (AGENDA) -->
         <section id="boeken" class="max-w-5xl mx-auto px-4 py-16">
             <div class="text-center mb-12">
                 <h2 class="text-3xl font-black md:text-4xl">{{ t('booking.title') }}</h2>
-                <p class="text-gray-500 dark:text-gray-400 mt-2">Selecteer je gewenste dag en tijdslot.</p>
+                <p class="text-gray-500 dark:text-gray-400 mt-2">Selecteer je lesvorm, niveau en gewenste tijdslot.</p>
             </div>
 
             <div class="grid lg:grid-cols-3 gap-8 bg-white dark:bg-gray-800 p-6 md:p-8 rounded-3xl shadow-xl border border-gray-100 dark:border-gray-700">
-                <!-- Stap 1: Datum Kiezen -->
+                <!-- Stap 1: Lesconfiguratie & Datum -->
                 <div class="space-y-4">
                     <h3 class="font-bold text-lg flex items-center gap-2 text-padelGreen">
                         <span class="bg-padelGreen text-black w-6 h-6 rounded-full inline-flex items-center justify-center text-xs">1</span>
-                        Kies een Datum
+                        Lesdetails & Datum
                     </h3>
-                    <input type="date" v-model="bookingForm.date" :min="today" @change="generateSlots"
-                           class="w-full p-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 font-medium focus:ring-2 focus:ring-padelGreen outline-none">
+                    
+                    <!-- Lesvorm Selectie -->
+                    <div>
+                        <label class="block text-[11px] font-bold uppercase text-gray-400 mb-1">Trainingsvorm</label>
+                        <select v-model="bookingForm.lessonType" class="w-full p-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 font-medium focus:ring-2 focus:ring-padelGreen outline-none text-sm">
+                            <option value="privé">Privé Training (1 Speler) - €60</option>
+                            <option value="duo">Duo Training (2 Spelers) - €70</option>
+                            <option value="groep">Groepstraining (4 Spelers) - €80</option>
+                        </select>
+                    </div>
+
+                    <!-- Spelersniveau Selectie -->
+                    <div>
+                        <label class="block text-[11px] font-bold uppercase text-gray-400 mb-1">Actuele Speelniveau</label>
+                        <select v-model="bookingForm.level" class="w-full p-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 font-medium focus:ring-2 focus:ring-padelGreen outline-none text-sm">
+                            <option value="beginner">Beginner (KNLTB 9 - 8)</option>
+                            <option value="gemiddeld">Gemiddeld (KNLTB 7 - 5)</option>
+                            <option value="gevorderd">Gevorderd (KNLTB 4 - 2)</option>
+                        </select>
+                    </div>
+
+                    <!-- Dynamisch Partner Veld indien Duo of Groep -->
+                    <div v-if="bookingForm.lessonType !== 'privé'">
+                        <label class="block text-[11px] font-bold uppercase text-gray-400 mb-1">Naam Medespeler(s)</label>
+                        <input type="text" v-model="bookingForm.partners" placeholder="Bijv. Niels, Sophie..." required
+                               class="w-full p-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-sm focus:ring-2 focus:ring-padelGreen outline-none">
+                    </div>
+
+                    <!-- Datum kiezer -->
+                    <div>
+                        <label class="block text-[11px] font-bold uppercase text-gray-400 mb-1">Kies een Datum</label>
+                        <input type="date" v-model="bookingForm.date" :min="today" @change="generateSlots"
+                               class="w-full p-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 font-medium focus:ring-2 focus:ring-padelGreen outline-none text-sm">
+                    </div>
                 </div>
 
                 <!-- Stap 2: Tijdslot Kiezen -->
@@ -121,8 +210,8 @@
                             <span class="block text-[10px] font-normal opacity-75">{{ slot.available ? 'Beschikbaar' : 'Volgeboekt' }}</span>
                         </button>
                     </div>
-                    <div v-else class="text-center py-8 text-gray-400 bg-gray-50 dark:bg-gray-900 rounded-xl border border-dashed border-gray-300 dark:border-gray-700">
-                        Selecteer hierboven een datum om realtime beschikbare uren te laden.
+                    <div v-else class="text-center py-12 text-gray-400 bg-gray-50 dark:bg-gray-900 rounded-xl border border-dashed border-gray-300 dark:border-gray-700">
+                        Selecteer aan de linkerkant een datum om realtime beschikbare uren te laden.
                     </div>
                 </div>
 
@@ -142,13 +231,13 @@
                     <div v-if="bookingForm.date && bookingForm.slot">
                         <p class="text-sm text-gray-500">Geselecteerde training:</p>
                         <p class="font-bold text-lg text-padelGreen">
-                            {{ bookingForm.date }} om {{ bookingForm.slot }} uur 
-                            <span v-if="bookingForm.rentRacket" class="text-xs text-gray-400 font-normal block sm:inline sm:ml-2">(Inclusief rackethuur)</span>
+                            <span class="capitalize">{{ bookingForm.lessonType }}</span> ({{ bookingForm.level }}) op {{ bookingForm.date }} om {{ bookingForm.slot }} uur
+                            <span v-if="bookingForm.partners" class="text-xs text-gray-400 block">Partners: {{ bookingForm.partners }}</span>
                         </p>
                     </div>
                     <div v-else class="text-sm text-gray-400">Vul alle stappen in om de boeking te voltooien.</div>
                     
-                    <button @click="handleCheckout('les')" :disabled="!bookingForm.date || !bookingForm.slot"
+                    <button @click="handleCheckout('les')" :disabled="!bookingForm.date || !bookingForm.slot || (bookingForm.lessonType !== 'privé' && !bookingForm.partners)"
                             class="w-full md:w-auto bg-padelGreen text-black font-black px-10 py-4 rounded-xl disabled:opacity-40 disabled:cursor-not-allowed hover:bg-opacity-90 transition">
                         Nu Afrekenen via Stripe (€{{ totaleLesPrijs }},00)
                     </button>
@@ -180,7 +269,7 @@
         <section id="rittenkaarten" class="max-w-6xl mx-auto px-4 py-20">
             <div class="text-center mb-12">
                 <h2 class="text-3xl font-black md:text-4xl">Rittenkaarten & Voordeel</h2>
-                <p class="text-gray-500 dark:text-gray-400 mt-2">Train regelmatig en profiteer van scherpe kortingen op je lessen.</p>
+                <p class="text-gray-500 dark:text-gray-400 mt-2">Train regelmatig i.s.m. je eigen online dashboard-registratie.</p>
             </div>
 
             <div class="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
@@ -214,7 +303,6 @@
                 </div>
 
                 <div class="grid lg:grid-cols-3 gap-8 items-stretch">
-                    <!-- Voordelen Kaart 1 -->
                     <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md border-b-4 border-blue-500 flex flex-col justify-between">
                         <div>
                             <div class="text-3xl mb-3">🎒</div>
@@ -222,7 +310,6 @@
                             <p class="text-sm text-gray-500 dark:text-gray-300">Perfect ingepland op de woensdagmiddag en zaterdagochtend. Kinderen trainen in vaste groepen van hun eigen leeftijd en niveau.</p>
                         </div>
                     </div>
-                    <!-- Voordelen Kaart 2 -->
                     <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md border-b-4 border-blue-500 flex flex-col justify-between">
                         <div>
                             <div class="text-3xl mb-3">🛡️</div>
@@ -230,7 +317,6 @@
                             <p class="text-sm text-gray-500 dark:text-gray-300">Julian maakt gebruik van speciale, lichtere juniorrackets. Veiligheid op de baan staat voorop, gecombineerd met dynamische spelvormen.</p>
                         </div>
                     </div>
-                    <!-- Proefles Formulier -->
                     <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-xl border border-blue-500/30 lg:row-span-1">
                         <h3 class="font-black text-base text-blue-500 uppercase tracking-wide mb-3">Meld aan voor een Proefles</h3>
                         <form @submit.prevent="handleKidsRegister" class="space-y-3">
@@ -256,7 +342,7 @@
             </div>
         </section>
 
-        <!-- BEDRIJFSCLINICS & TEAMBUILDING PAKKETTEN -->
+        <!-- BEDRIJFSCLINICS -->
         <section id="clinics" class="bg-gradient-to-r from-gray-900 to-gray-800 text-white py-20">
             <div class="max-w-6xl mx-auto px-4 grid lg:grid-cols-2 gap-12 items-center">
                 <div>
@@ -273,7 +359,6 @@
                     </ul>
                 </div>
 
-                <!-- Offerte Formulier -->
                 <div class="bg-white text-gray-900 p-8 rounded-3xl shadow-2xl">
                     <h3 class="text-xl font-bold mb-4 text-gray-900">Vraag direct een offerte aan</h3>
                     <form @submit.prevent="handleClinicRequest" class="space-y-4">
@@ -313,27 +398,19 @@
             </div>
         </section>
 
-        <!-- HOOFDTRAINER INFORMATIE SECTIE ("OVER JULIAN") -->
+        <!-- OVER JULIAN -->
         <section id="trainer" class="max-w-6xl mx-auto px-4 py-20 border-t border-gray-200 dark:border-gray-700">
             <div class="grid lg:grid-cols-12 gap-12 items-center">
-                
-                <!-- Linkerzijde: Pro-Paspoort Visual -->
                 <div class="lg:col-span-5 bg-gradient-to-br from-black to-gray-900 dark:from-gray-800 dark:to-gray-950 p-8 rounded-3xl text-white shadow-2xl relative overflow-hidden border border-gray-800">
                     <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-padelGreen/10 rounded-full blur-2xl"></div>
-                    
-                    <!-- Trainer Badge & Avatar-placeholder -->
                     <div class="flex items-center gap-4 mb-6">
-                        <div class="w-20 h-20 bg-padelGreen rounded-full flex items-center justify-center text-black text-3xl font-black">
-                            JP
-                        </div>
+                        <div class="w-20 h-20 bg-padelGreen rounded-full flex items-center justify-center text-black text-3xl font-black">JP</div>
                         <div>
                             <span class="text-[10px] bg-padelGreen text-black px-2 py-0.5 rounded font-black uppercase tracking-wider">Head Coach</span>
                             <h3 class="text-2xl font-black tracking-tight mt-0.5">Julian</h3>
                             <p class="text-xs text-gray-400">KNLTB Licentie A Gecertificeerd</p>
                         </div>
                     </div>
-
-                    <!-- Spelersstatistieken -->
                     <div class="space-y-4 border-t border-gray-800 pt-4 text-sm">
                         <div class="flex justify-between"><span class="text-gray-400">Ervaring:</span><span class="font-bold">3+ Jaar Fulltime Coach</span></div>
                         <div class="flex justify-between"><span class="text-gray-400">Eigen Speelsterkte:</span><span class="font-bold text-padelGreen">Niveau 3.2 KNLTB</span></div>
@@ -342,7 +419,6 @@
                     </div>
                 </div>
 
-                <!-- Rechterzijde: Biografie & Filosofie -->
                 <div class="lg:col-span-7 space-y-6">
                     <span class="text-xs font-bold text-padelGreen uppercase tracking-widest bg-padelGreen/10 px-3 py-1 rounded-md">Ontmoet je Trainer</span>
                     <h2 class="text-4xl font-black tracking-tight">"Mijn missie is om jouw padel-IQ te verhogen."</h2>
@@ -352,7 +428,6 @@
                     <p class="text-gray-600 dark:text-gray-300 leading-relaxed">
                         Of je nu voor het eerst een racket vasthoudt in de Kids Academy, met je vaste partner de dubbel-tactiek wilt aanscherpen, of als bedrijf een onvergetelijke clinic wilt beleven: ik hanteer een moderne, video-ondersteunde methode waarbij plezier en progressie hand in hand gaan.
                     </p>
-                    
                     <div class="grid grid-cols-3 gap-4 pt-4 border-t border-gray-200 dark:border-gray-700 text-center">
                         <div class="p-3 bg-gray-100 dark:bg-gray-800 rounded-xl">
                             <div class="text-2xl font-black text-padelGreen">100+</div>
@@ -368,11 +443,10 @@
                         </div>
                     </div>
                 </div>
-
             </div>
         </section>
 
-        <!-- CONTACT SECTIE -->
+        <!-- FOOTER / CONTACT -->
         <footer id="contact" class="bg-black text-white py-16">
             <div class="max-w-6xl mx-auto px-4 grid md:grid-cols-3 gap-12">
                 <div>
@@ -395,37 +469,58 @@
             </div>
         </footer>
 
-        <!-- POPUP: AUTHENTICATIE / 2FA SIMULATIE -->
+        <!-- POPUP: AUTHENTICATIE MODAL (LOGIN & REGISTRATIE) -->
         <div v-if="showAuthModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
             <div class="bg-white dark:bg-gray-800 p-8 rounded-3xl max-w-md w-full shadow-2xl relative border border-gray-100 dark:border-gray-700">
                 <button @click="showAuthModal = false" class="absolute top-4 right-4 text-xl">✕</button>
                 
+                <!-- STAGE 1: LOGIN / REGISTREER KEUS -->
                 <div v-if="!twoFactorStep">
-                    <h3 class="text-2xl font-black mb-2">{{ t('auth.login') }}</h3>
-                    <p class="text-xs text-gray-400 mb-6">Beveiligde inlogomgeving voor accounts.</p>
-                    <form @submit.prevent="twoFactorStep = true" class="space-y-4">
+                    <h3 class="text-2xl font-black mb-2">{{ authMode === 'login' ? t('auth.login') : 'Nieuw Account Registreren' }}</h3>
+                    <p class="text-xs text-gray-400 mb-6">
+                        {{ authMode === 'login' ? 'Beveiligde inlogomgeving voor spelers.' : 'Maak een account aan om je rittenkaarten en video-analyses te beheren.' }}
+                    </p>
+                    
+                    <form @submit.prevent="handleAuthSubmit" class="space-y-4">
+                        <div v-if="authMode === 'register'">
+                            <label class="block text-xs font-bold uppercase mb-1">Volledige Naam</label>
+                            <input type="text" required v-model="authForm.name" class="w-full p-3 rounded-xl border bg-gray-50 dark:bg-gray-700 dark:border-gray-600" placeholder="Bijv. Tess van der Meer">
+                        </div>
                         <div>
                             <label class="block text-xs font-bold uppercase mb-1">E-mailadres</label>
-                            <input type="email" required class="w-full p-3 rounded-xl border dark:bg-gray-700" placeholder="naam@voorbeeld.nl">
+                            <input type="email" required v-model="authForm.email" class="w-full p-3 rounded-xl border bg-gray-50 dark:bg-gray-700 dark:border-gray-600" placeholder="naam@voorbeeld.nl">
                         </div>
                         <div>
                             <label class="block text-xs font-bold uppercase mb-1">Wachtwoord</label>
-                            <input type="password" required class="w-full p-3 rounded-xl border dark:bg-gray-700" placeholder="••••••••">
+                            <input type="password" required v-model="authForm.password" class="w-full p-3 rounded-xl border bg-gray-50 dark:bg-gray-700 dark:border-gray-600" placeholder="••••••••">
                         </div>
-                        <button type="submit" class="w-full bg-padelGreen text-black font-bold py-3 rounded-xl mt-2">
-                            Verder
+                        
+                        <button type="submit" class="w-full bg-padelGreen text-black font-bold py-3 rounded-xl mt-2 hover:opacity-90 transition">
+                            {{ authMode === 'login' ? 'Verder' : 'Account Registreren' }}
                         </button>
                     </form>
+
+                    <!-- REGISTREER SWITCH KNOP -->
+                    <div class="mt-6 text-center border-t border-gray-100 dark:border-gray-700 pt-4 text-xs">
+                        <p v-if="authMode === 'login'" class="text-gray-500">
+                            Nieuw op dit platform? 
+                            <button @click="authMode = 'register'" class="text-blue-500 font-bold hover:underline ml-1">Registreer hier een account</button>
+                        </p>
+                        <p v-else class="text-gray-500">
+                            Heb je al een account? 
+                            <button @click="authMode = 'login'" class="text-blue-500 font-bold hover:underline ml-1">Log direct in</button>
+                        </p>
+                    </div>
                 </div>
 
-                <!-- 2FA STAGE -->
+                <!-- STAGE 2: 2FA VERIFICATIE -->
                 <div v-else>
                     <h3 class="text-2xl font-black mb-2">🔒 Twee-staps verificatie (2FA)</h3>
-                    <p class="text-xs text-gray-400 mb-6">Voer de 6-cijferige verificatiecode in uit je authenticator-app.</p>
+                    <p class="text-xs text-gray-400 mb-6">Voer de 6-cijferige verificatiecode in uit je authenticator-app om inloggen te voltooien.</p>
                     <form @submit.prevent="simulateLogin" class="space-y-4">
                         <div>
                             <label class="block text-xs font-bold uppercase text-center mb-2">Verificatiecode</label>
-                            <input type="text" maxlength="6" required class="w-full p-4 rounded-xl border text-center font-mono text-2xl tracking-widest dark:bg-gray-700" placeholder="000000">
+                            <input type="text" maxlength="6" required class="w-full p-4 rounded-xl border text-center font-mono text-2xl tracking-widest bg-gray-50 dark:bg-gray-700 dark:border-gray-600" placeholder="000000">
                         </div>
                         <button type="submit" class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl">
                             Verifieer & Log in
@@ -455,6 +550,7 @@
                 const lang = ref('nl');
                 const showAuthModal = ref(false);
                 const twoFactorStep = ref(false);
+                const authMode = ref('login'); // 'login' of 'register'
                 const user = ref(null);
                 const notification = ref(null);
                 const today = new Date().toISOString().split('T')[0];
@@ -463,7 +559,16 @@
                 const bookingForm = ref({
                     date: '',
                     slot: '',
-                    rentRacket: false
+                    rentRacket: false,
+                    lessonType: 'privé', // Uitbreiding: privé, duo of groep
+                    level: 'beginner',   // Uitbreiding: beginner, gemiddeld of gevorderd
+                    partners: ''         // Uitbreiding: Namen medespelers
+                });
+
+                const authForm = ref({
+                    name: '',
+                    email: '',
+                    password: ''
                 });
 
                 const clinicForm = ref({
@@ -483,9 +588,23 @@
 
                 const availableSlots = ref([]);
 
-                // Berekende lesprijs op basis van wel/geen rackethuur
+                // Klantenpaneel Mock Data
+                const mockDashboard = ref({
+                    ritten: 7,
+                    boeking: 'Woensdag 24 Juni om 19:00 - 20:00 uur',
+                    videos: [
+                        { titel: 'Techniek: Kick-smash & Bandeja plaatsing', datum: '12 Mei 2026', url: '#' },
+                        { titel: 'Positiespel: Defensief glasgebruik', datum: '02 Juni 2026', url: '#' }
+                    ]
+                });
+
+                // Dynamische lesprijs berekening op basis van Trainingsvorm + optionele Rackethuur
                 const totaleLesPrijs = computed(() => {
-                    return bookingForm.value.rentRacket ? 65 : 60;
+                    let basisPrijs = 60; // Privé
+                    if (bookingForm.value.lessonType === 'duo') basisPrijs = 70;
+                    if (bookingForm.value.lessonType === 'groep') basisPrijs = 80;
+                    
+                    return bookingForm.value.rentRacket ? basisPrijs + 5 : basisPrijs;
                 });
 
                 const tarieven = [
@@ -500,7 +619,6 @@
                     { titel: "10-Rittenkaart", sub: "Voor de die-hard padeller", prijs: "€ 540,-", besparing: "1 les volledig gratis (Bespaar 10%)", popular: true }
                 ];
 
-                // Meertaligheid Woordenboek
                 const translations = {
                     nl: {
                         'nav.book': 'Plan een Les', 'nav.rates': 'Tarieven', 'nav.contact': 'Contact',
@@ -536,12 +654,47 @@
                     setTimeout(() => notification.value = null, 5000);
                 };
 
+                const handleAuthClick = () => {
+                    if (user.value) {
+                        document.getElementById('dashboard').scrollIntoView({ behavior: 'smooth' });
+                    } else {
+                        authMode.value = 'login';
+                        showAuthModal.value = true;
+                    }
+                };
+
+                const handleAuthSubmit = () => {
+                    if (authMode.value === 'login') {
+                        twoFactorStep.value = true;
+                    } else {
+                        // Simulatie van een directe registratie pipeline
+                        user.value = { name: authForm.value.name || 'Nieuwe Speler' };
+                        showAuthModal.value = false;
+                        triggerNotification("Account succesvol aangemaakt! Welkom bij de Julian Padel Academy.");
+                    }
+                };
+
+                const simulateLogin = () => {
+                    user.value = { name: "Martijn de Bruijn" };
+                    showAuthModal.value = false;
+                    twoFactorStep.value = false;
+                    triggerNotification("Veilig ingelogd met 2FA! Jouw persoonlijke dashboard is nu geopend.");
+                    setTimeout(() => {
+                        document.getElementById('dashboard').scrollIntoView({ behavior: 'smooth' });
+                    }, 200);
+                };
+
+                const logout = () => {
+                    user.value = null;
+                    authForm.value = { name: '', email: '', password: '' };
+                    triggerNotification("Je bent veilig uitgelogd.");
+                };
+
                 const handleCheckout = (type, detail = '') => {
                     triggerNotification("Stripe Gateway wordt geïnitieerd... (Simulatie)");
-                    
                     setTimeout(() => {
                         if (type === 'les') {
-                            alert(`Betalingsverzoek aangemaakt voor de losse les op ${bookingForm.value.date} om ${bookingForm.value.slot}.\nTotaalbedrag: €${totaleLesPrijs.value},00.\n\nIn de live-omgeving wordt je nu doorgestuurd naar Stripe.`);
+                            alert(`Betalingsverzoek aangemaakt voor de ${bookingForm.value.lessonType}les (${bookingForm.value.level}) op ${bookingForm.value.date} om ${bookingForm.value.slot}.\nTotaalbedrag: €${totaleLesPrijs.value},00.`);
                         } else {
                             alert(`Betalingsverzoek aangemaakt voor: ${detail}.\n\nIn de live-omgeving wordt je nu doorgestuurd naar de Stripe Checkout.`);
                         }
@@ -561,13 +714,6 @@
                     kidsForm.value = { childName: '', childAge: '', preferredDay: 'Woensdag', parentEmail: '' };
                 };
 
-                const simulateLogin = () => {
-                    user.value = { name: "Klant Speler" };
-                    showAuthModal.value = false;
-                    twoFactorStep.value = false;
-                    triggerNotification("Veilig ingelogd in jouw account met 2FA!");
-                };
-
                 onMounted(() => {
                     if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
                         toggleDarkMode();
@@ -576,8 +722,8 @@
 
                 return {
                     darkMode, toggleDarkMode, lang, toggleLanguage, t,
-                    bookingForm, clinicForm, kidsForm, today, availableSlots, generateSlots, handleCheckout, handleClinicRequest, handleKidsRegister, totaleLesPrijs,
-                    tarieven, rittenkaarten, showAuthModal, twoFactorStep, simulateLogin, user, notification
+                    bookingForm, authForm, clinicForm, kidsForm, today, availableSlots, generateSlots, handleCheckout, handleClinicRequest, handleKidsRegister, totaleLesPrijs,
+                    tarieven, rittenkaarten, showAuthModal, twoFactorStep, authMode, handleAuthClick, handleAuthSubmit, simulateLogin, logout, user, notification, mockDashboard
                 };
             }
         }).mount('#app');
