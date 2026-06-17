@@ -158,9 +158,9 @@
                     <div>
                         <label class="block text-[11px] font-bold uppercase text-gray-400 mb-1">Trainingsvorm</label>
                         <select v-model="bookingForm.lessonType" class="w-full p-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 font-medium focus:ring-2 focus:ring-padelGreen outline-none text-sm">
-                            <option value="privé">Privé Training (1 Speler) - €60</option>
-                            <option value="duo">Duo Training (2 Spelers) - €70</option>
-                            <option value="groep">Groepstraining (4 Spelers) - €80</option>
+                            <option value="privé">Privé Training (1 Speler) - €80</option>
+                            <option value="duo">Duo Training (2 Spelers) - €40 p.p.</option>
+                            <option value="groep">Groepstraining (4 Spelers) - €20 p.p.</option>
                         </select>
                     </div>
 
@@ -478,7 +478,7 @@
                 <div v-if="!twoFactorStep">
                     <h3 class="text-2xl font-black mb-2">{{ authMode === 'login' ? t('auth.login') : 'Nieuw Account Registreren' }}</h3>
                     <p class="text-xs text-gray-400 mb-6">
-                        {{ authMode === 'login' ? 'Beveiligde inlogomgeving voor spelers.' : 'Maak een account aan om je rittenkaarten en video-analyses te beheren.' }}
+                        {{ authMode === 'login' ? 'Beveiligde inlogomgeving voor spelers.' : 'Maak een account aan om je rittenkaarten i.c.m. je statistieken te beheren.' }}
                     </p>
                     
                     <form @submit.prevent="handleAuthSubmit" class="space-y-4">
@@ -560,9 +560,9 @@
                     date: '',
                     slot: '',
                     rentRacket: false,
-                    lessonType: 'privé', // Uitbreiding: privé, duo of groep
-                    level: 'beginner',   // Uitbreiding: beginner, gemiddeld of gevorderd
-                    partners: ''         // Uitbreiding: Namen medespelers
+                    lessonType: 'privé', // privé, duo of groep
+                    level: 'beginner',   // beginner, gemiddeld of gevorderd
+                    partners: ''         // Namen medespelers
                 });
 
                 const authForm = ref({
@@ -598,25 +598,24 @@
                     ]
                 });
 
-                // Dynamische lesprijs berekening op basis van Trainingsvorm + optionele Rackethuur
+                // Aangepaste dynamische lesprijs op basis van de nieuwe tarieven:
+                // Privé = €80, Duo = €80 (totaal voor 2, oftewel €40 p.p.), Groep = €80 (totaal voor 4, oftewel €20 p.p.)
                 const totaleLesPrijs = computed(() => {
-                    let basisPrijs = 60; // Privé
-                    if (bookingForm.value.lessonType === 'duo') basisPrijs = 70;
-                    if (bookingForm.value.lessonType === 'groep') basisPrijs = 80;
-                    
+                    let basisPrijs = 80; 
                     return bookingForm.value.rentRacket ? basisPrijs + 5 : basisPrijs;
                 });
 
+                // Aangepaste Tarieven Array voor weergave
                 const tarieven = [
-                    { titel: "Privé Training", prijs: "€ 60,00", beschrijving: "1-op-1 intensieve focus op techniek, tactiek en voetenwerk." },
-                    { titel: "Duo Training", prijs: "€ 35,00", beschrijving: "Met je vaste partner trainen op positiespel en communicatie. (Prijs p.p.)" },
+                    { titel: "Privé Training", prijs: "€ 80,00", beschrijving: "1-op-1 intensieve focus op techniek, tactiek en voetenwerk." },
+                    { titel: "Duo Training", prijs: "€ 40,00", beschrijving: "Met je vaste partner trainen op positiespel en communicatie. (Prijs p.p.)" },
                     { titel: "Groepstraining", prijs: "€ 20,00", beschrijving: "Met 4 personen wedstrijd-situaties bootsen en spelplezier optimaliseren. (Prijs p.p.)" },
                     { titel: "Kids Junior Groep", prijs: "€ 15,00", beschrijving: "Gezellige woensdag- of zaterdagtraining in groepsverband (Prijs p.p.)" }
                 ];
 
                 const rittenkaarten = [
-                    { titel: "5-Rittenkaart", sub: "Voor de regelmatige speler", prijs: "€ 285,-", besparing: "Bespaar 5% op losse lessen", popular: false },
-                    { titel: "10-Rittenkaart", sub: "Voor de die-hard padeller", prijs: "€ 540,-", besparing: "1 les volledig gratis (Bespaar 10%)", popular: true }
+                    { titel: "5-Rittenkaart", sub: "Voor de regelmatige speler", prijs: "€ 380,-", besparing: "Bespaar op losse privé/duo-tarieven", popular: false },
+                    { titel: "10-Rittenkaart", sub: "Voor de die-hard padeller", prijs: "€ 720,-", besparing: "1 les volledig gratis (Bespaar 10%)", popular: true }
                 ];
 
                 const translations = {
@@ -667,7 +666,6 @@
                     if (authMode.value === 'login') {
                         twoFactorStep.value = true;
                     } else {
-                        // Simulatie van een directe registratie pipeline
                         user.value = { name: authForm.value.name || 'Nieuwe Speler' };
                         showAuthModal.value = false;
                         triggerNotification("Account succesvol aangemaakt! Welkom bij de Julian Padel Academy.");
