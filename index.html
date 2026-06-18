@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html lang="nl" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cuchilla Padel Academy</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        padelGreen: '#9EF01A',
+                    }
+                }
+            }
+        }
+    </script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://js.stripe.com/v3/"></script>
+</head>
+<body class="bg-gray-50 text-gray-900 dark:bg-gray-900 dark:text-gray-100 transition-colors duration-300">
+
+    <div id="app" v-cloak>
+        
+        <!-- HOOFDPAGINA (KLASSIEKE WEBSITE) -->
+        <div v-if="activePage === 'home'">
+            <nav class="sticky top-0 z-50 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-700">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="flex items-center justify-between h-16">
+                        <div class="flex items-center gap-2">
+                            <span class="text-2xl font-black tracking-wider text-padelGreen bg-black px-3 py-1 rounded-lg">JP</span>
+                            <span class="font-bold text-xl hidden sm:block">Cuchilla Padel Academy</span>
+                        </div>
+                        
+                        <div class="hidden md:flex space-x-6 font-medium text-sm lg:text-base">
+                            <a href="#boeken" class="hover:text-padelGreen transition">Plan een Les</a>
+                            <a href="#tarieven" class="hover:text-padelGreen transition">Tarieven</a>
+                            <a href="#rittenkaarten" class="hover:text-padelGreen transition">Lessenreeks</a>
+                            <a href="#kids" class="hover:text-padelGreen transition">Kids Academy</a>
+                            <a href="#clinics" class="hover:text-padelGreen transition">Bedrijfsclinics</a>
+                            <a href="#trainer" class="hover:text-padelGreen transition">Over Julian</a>
+                            <a href="#reviews" class="hover:text-padelGreen transition">Reviews</a>
+                            <a href="#contact" class="hover:text-padelGreen transition">Contact</a>
+                        </div>
+
+                        <div class="flex items-center gap-4">
+                            <button @click="toggleDarkMode" class="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:scale-105 transition">
+                                <span v-if="darkMode">☀️</span>
+                                <span v-else>🌙</span>
+                            </button>
+                            <button @click="handleAuthClick" class="bg-black text-white dark:bg-white dark:text-black font-semibold px-4 py-2 rounded-lg text-sm hover:opacity-80 transition">
+                                {{ user ? 'Mijn Dashboard' : 'Spelers Portaal' }}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+
+            <header class="relative overflow-hidden py-24 text-center bg-gradient-to-b from-padelGreen/20 via-transparent to-transparent">
+                <div class="max-w-4xl mx-auto px-4">
+                    <span class="bg-padelGreen/30 text-black dark:text-padelGreen text-xs font-bold uppercase tracking-widest px-4 py-1.5 rounded-full">Cuchilla Padel Academy</span>
+                    <h1 class="text-5xl md:text-7xl font-black tracking-tight mt-4 mb-6">
+                        Breng Jouw Padelspel Naar Het <span class="text-transparent bg-clip-text bg-gradient-to-r from-green-500 to-padelGreen">Hoogste Niveau</span>
+                    </h1>
+                    <p class="text-lg md:text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto mb-10">
+                        Professionele trainingen op maat door hoofdtrainer Julian Van Duijn. Voor beginners, gevorderden en de sterren van de toekomst.
+                    </p>
+                    <div class="flex justify-center gap-4">
+                        <a href="#boeken" class="bg-padelGreen text-black font-bold px-8 py-4 rounded-xl shadow-lg hover:shadow-padelGreen/20 hover:-translate-y-0.5 transition duration-200">
+                            Boek Nu Een Padelles
+                        </a>
+                    </div>
+                </div>
+            </header>
+
+            <section id="boeken" class="max-w-5xl mx-auto px-4 py-16">
+                <div class="text-center mb-12">
+                    <h2 class="text-3xl font-black md:text-4xl">Online Agenda & Reserveringen</h2>
+                    <p class="text-gray-500 dark:text-gray-400 mt-2">Vul je gegevens in, stel je losse lessen samen en reken direct af.</p>
+                </div>
+
+                <div class="grid lg:grid-cols-3 gap-8 bg-white dark:bg-gray-800 p-6 md:p-8 rounded-3xl shadow-xl border border-gray-100 dark:border-gray-700">
+                    <div class="space-y-4">
+                        <h3 class="font-bold text-lg flex items-center gap-2 text-padelGreen">
+                            <span class="bg-padelGreen text-black w-6 h-6 rounded-full inline-flex items-center justify-center text-xs">1</span>
+                            Jouw Gegevens & Lesvorm
+                        </h3>
+                        
+                        <div class="bg-gray-50 dark:bg-gray-900/50 p-3.5 rounded-xl border border-gray-200 dark:border-gray-700/60 space-y-3">
+                            <span class="text-[10px] font-black uppercase text-padelGreen tracking-wide block">Contactgegevens boeker</span>
+                            <div>
+                                <label class="block text-[10px] font-bold uppercase text-gray-400 mb-0.5">Volledige Naam *</label>
+                                <input type="text" v-model="customerForm.name" placeholder="Bijv. Jan de Vries" required
+                                       class="w-full p-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-xs focus:ring-2 focus:ring-padelGreen outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold uppercase text-gray-400 mb-0.5">E-mailadres *</label>
+                                <input type="email" v-model="customerForm.email" placeholder="jan@voorbeeld.nl" required
+                                       class="w-full p-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-xs focus:ring-2 focus:ring-padelGreen outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold uppercase text-gray-400 mb-0.5">Telefoonnummer *</label>
+                                <input type="tel" v-model="customerForm.phone" placeholder="0612345678" required
+                                       class="w-full p-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-xs focus:ring-2 focus:ring-padelGreen outline-none">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-[11px] font-bold uppercase text-gray-400 mb-1">Trainingsvorm</label>
+                            <select v-model="bookingForm.lessonType" class="w-full p-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 font-medium focus:ring-2 focus:ring-padelGreen outline-none text-sm">
+                                <option value="privé">Privé Training (1 Speler) - €80</option>
+                                <option value="duo">Duo Training (2 Spelers) - €40 p.p.</option>
+                                <option value="groep">Groepstraining (4 Spelers) - €20 p.p.</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-[11px] font-bold uppercase text-gray-400 mb-1">Actuele Speelniveau</label>
+                            <select v-model="bookingForm.level" class="w-full p-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 font-medium focus:ring-2 focus:ring-padelGreen outline-none text-sm">
+                                <option value="beginner">Beginner (KNLTB 7 - 9)</option>
+                                <option value="gemiddeld">Gemiddeld (KNLTB 4 - 6)</option>
+                                <option value="gevorderd">Gevorderd (KNLTB 1 - 3)</option>
+                            </select>
+                        </div>
+
+                        <div v-if="bookingForm.lessonType !== 'privé'">
+                            <label class="block text-[11px] font-bold uppercase text-gray-400 mb-1">Naam Medespeler(s)</label>
+                            <input type="text" v-model="bookingForm.partners" placeholder="Bijv. Niels, Sophie..." required
+                                   class="w-full p-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-sm focus:ring-2 focus:ring-padelGreen outline-none">
+                        </div>
+
+                        <div>
+                            <label class="block text-[11px] font-bold uppercase text-gray-400 mb-1">Kies een Datum</label>
+                            <input type="date" v-model="bookingForm.date" :min="today" @change="generateSlots('single')"
+                                   class="w-full p-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 font-medium focus:ring-2 focus:ring-padelGreen outline-none text-sm">
+                        </div>
+                    </div>
+
+                    <div class="space-y-4 lg:col-span-2">
+                        <h3 class="font-bold text-lg flex items-center gap-2 text-padelGreen">
+                            <span class="bg-padelGreen text-black w-6 h-6 rounded-full inline-flex items-center justify-center text-xs">2</span>
+                            Beschikbare Tijdslots ({{ bookingForm.date || 'Kies eerst een datum' }})
+                        </h3>
+                        
+                        <div v-if="bookingForm.date" class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                            <button v-for="slot in availableSlots" :key="slot.time"
+                                    @click="bookingForm.slot = slot.time"
+                                    :disabled="!slot.available"
+                                    :class="[
+                                        'p-3.5 rounded-xl border font-semibold text-sm transition tracking-wide text-center',
+                                        !slot.available ? 'bg-gray-200 dark:bg-gray-700 text-gray-400 line-through cursor-not-allowed' :
+                                        bookingForm.slot === slot.time ? 'bg-padelGreen text-black border-padelGreen shadow-md shadow-padelGreen/20 scale-102' :
+                                        'bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700 hover:border-padelGreen'
+                                    ]">
+                                {{ slot.time }}
+                                <span class="block text-[10px] font-normal opacity-75">{{ slot.available ? 'Beschikbaar' : 'Volgeboekt' }}</span>
+                            </button>
+                        </div>
+                        <div v-else class="text-center py-12 text-gray-400 bg-gray-50 dark:bg-gray-900 rounded-xl border border-dashed border-gray-300 dark:border-gray-700">
+                            Selecteer aan de linkerkant een datum om realtime beschikbare uren te laden.
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-3 bg-gray-50 dark:bg-gray-900 p-4 rounded-xl border border-gray-200 dark:border-gray-700 flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <input type="checkbox" id="rent-racket" v-model="bookingForm.rentRacket" class="w-5 h-5 accent-padelGreen rounded cursor-pointer">
+                            <label for="rent-racket" class="font-semibold text-sm md:text-base cursor-pointer select-none">
+                                Ik wil een professioneel padelracket huren voor <span class="underline">deze</span> specifieke les <span class="text-padelGreen font-bold">(+ €5,00)</span>
+                            </label>
+                        </div>
+                        <button @click="addLessonToCart" :disabled="!bookingForm.date || !bookingForm.slot || (bookingForm.lessonType !== 'privé' && !bookingForm.partners)"
+                                class="bg-black text-white dark:bg-white dark:text-black font-bold px-4 py-2 rounded-lg text-xs hover:opacity-80 transition disabled:opacity-40">
+                            + Voeg les toe
+                        </button>
+                    </div>
+
+                    <div class="lg:col-span-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+                        <h4 class="font-bold text-sm uppercase text-gray-400 mb-3">Geselecteerde lessen / series ({{ cart.length }})</h4>
+                        <div v-if="cart.length > 0" class="space-y-2 mb-4">
+                            <div v-for="(item, index) in cart" :key="index" class="flex justify-between items-center bg-gray-50 dark:bg-gray-900 p-3 rounded-xl border border-gray-200 dark:border-gray-700">
+                                <div class="text-xs md:text-sm">
+                                    <span class="font-bold text-padelGreen">[{{ item.isSeries ? item.weeks + '-Weken Schema' : 'Losse Les' }}]</span> 
+                                    <span class="capitalize font-semibold">{{ item.lessonType }}</span> 
+                                    <span v-if="item.isSeries">vanaf {{ item.date }} (elk wekelijks op {{ item.slot }} uur)</span>
+                                    <span v-else>op {{ item.date }} om {{ item.slot }} uur</span>
+                                    <span class="block text-[11px] text-gray-400 mt-0.5">
+                                        Niveau: {{ item.level }} <span v-if="item.partners">| Partners: {{ item.partners }}</span> | Rackethuur: {{ item.rentRacket ? 'Ja' : 'Nee' }}
+                                    </span>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <span class="font-bold text-xs md:text-sm">€{{ item.price }},00</span>
+                                    <button @click="removeLessonFromCart(index)" class="text-red-500 hover:text-red-700 font-bold text-xs px-2 py-1">✕</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div v-else class="text-sm text-gray-400 italic py-2">Nog geen lessen toegevoegd. Stel hierboven een losse les samen of kies hieronder voor een Lessenreeks.</div>
+                    </div>
+
+                    <div class="lg:col-span-3 pt-4 border-t border-gray-200 dark:border-gray-700 flex flex-col md:flex-row justify-between items-center gap-4">
+                        <div class="text-sm text-gray-400 space-y-1">
+                            <div v-if="cart.length > 0 && isCustomerFormValid" class="flex items-start gap-1.5 text-emerald-600 dark:text-emerald-400 font-medium">
+                                <span>📧</span>
+                                <span>Na betaling ontvang je direct een automatische e-mail met alle lestijden en de officiële factuur van <strong>Cuchilla Padel Academy</strong>.</span>
+                            </div>
+                            <span v-if="cart.length > 0 && isCustomerFormValid">Klik op de knop om je volledige selectie in 1x veilig af te rekenen.</span>
+                            <span v-else-if="cart.length > 0 && !isCustomerFormValid" class="text-red-400 font-semibold">Vul eerst je naam, e-mailadres en telefoonnummer in bij stap 1 om af te rekenen.</span>
+                            <span v-else>Stel een losse les samen of configureer hieronder een vaste lessenreeks.</span>
+                        </div>
+                        
+                        <button @click="handleCheckout('winkelwagen')" :disabled="cart.length === 0 || !isCustomerFormValid"
+                                class="w-full md:w-auto bg-padelGreen text-black font-black px-10 py-4 rounded-xl disabled:opacity-40 disabled:cursor-not-allowed hover:bg-opacity-90 transition">
+                            Nu Afrekenen (€{{ totaleCartPrijs }},00)
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <section id="tarieven" class="bg-gray-100 dark:bg-gray-800/50 py-20 transition-colors">
+                <div class="max-w-6xl mx-auto px-4">
+                    <h2 class="text-3xl font-black text-center mb-12">Trainingsvormen & Tarieven</h2>
+                    <div class="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+                        <div v-for="tarief in tarieven" :key="tarief.titel" class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg border-t-4 border-padelGreen hover:-translate-y-1 transition duration-300 flex flex-col justify-between">
+                            <div>
+                                <h3 class="text-lg font-bold mb-1">{{ tarief.titel }}</h3>
+                                <div class="text-3xl font-black text-padelGreen my-3">{{ tarief.prijs }}<span class="text-xs font-normal text-gray-400"> / sessie</span></div>
+                                <p class="text-gray-500 dark:text-gray-300 text-xs mb-4">{{ tarief.beschrijving }}</p>
+                            </div>
+                            <ul class="space-y-1.5 text-xs opacity-90 border-t pt-3 border-gray-100 dark:border-gray-700">
+                                <li>✓ Inclusief Ballen & Baanadvies</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="rittenkaarten" class="bg-gradient-to-b from-transparent to-gray-100 dark:to-gray-800/30 py-20">
+                <div class="max-w-6xl mx-auto px-4">
+                    <div class="text-center mb-12">
+                        <span class="bg-padelGreen/20 text-padelGreen text-xs font-black uppercase tracking-widest px-3 py-1 rounded-md">Vast Trainingsschema</span>
+                        <h2 class="text-3xl font-black md:text-4xl mt-2">Lessenreeks met Vaste Dag & Tijdstip</h2>
+                        <p class="text-gray-500 dark:text-gray-400 mt-2 max-w-2xl mx-auto">
+                            Plan 4 of 8 weken oprij op exact dezelfde day en hetzelfde uur. Zo behoud je moeiteloos ritme en heb je gegarandeerd je favoriete plek in de agenda.
+                        </p>
+                    </div>
+
+                    <div class="grid lg:grid-cols-3 gap-8 items-start">
+                        <div class="space-y-4">
+                            <div v-for="kaart in rittenkaarten" :key="kaart.weeks"
+                                 @click="seriesForm.weeks = kaart.weeks"
+                                 :class="[
+                                     'p-6 rounded-3xl border-2 transition cursor-pointer relative overflow-hidden',
+                                     seriesForm.weeks === kaart.weeks ? 'bg-white dark:bg-gray-800 border-padelGreen shadow-xl' : 'bg-white/60 dark:bg-gray-800/60 border-transparent opacity-80 hover:opacity-100'
+                                 ]">
+                                <div class="absolute top-3 right-3 bg-blue-600 text-white text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded" v-if="kaart.popular">Populairst</div>
+                                <h3 class="text-xl font-black mb-1">{{ kaart.titel }}</h3>
+                                <p class="text-xs text-gray-400 mb-3">{{ kaart.sub }}</p>
+                                <div class="text-3xl font-black text-padelGreen mb-2">{{ kaart.prijsDisplay }}</div>
+                                <p class="text-xs text-gray-500 dark:text-gray-300 font-medium">{{ kaart.besparing }}</p>
+                            </div>
+                        </div>
+
+                        <div class="lg:col-span-2 bg-white dark:bg-gray-800 p-6 md:p-8 rounded-3xl shadow-xl border border-gray-100 dark:border-gray-700 grid md:grid-cols-2 gap-6">
+                            <div class="space-y-4">
+                                <h4 class="font-bold text-base text-padelGreen flex items-center gap-1.5">
+                                    <span>📅</span> Configureer Vaste Reeks ({{ seriesForm.weeks }} weken)
+                                </h4>
+                                
+                                <div>
+                                    <label class="block text-[11px] font-bold uppercase text-gray-400 mb-1">Trainingsvorm Reeks</label>
+                                    <select v-model="seriesForm.lessonType" class="w-full p-2.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-xs focus:ring-2 focus:ring-padelGreen outline-none">
+                                        <option value="privé">Privé (1 Speler) - €80 / les</option>
+                                        <option value="duo">Duo (2 Spelers) - €40 p.p. / les</option>
+                                        <option value="groep">Groep (4 Spelers) - €20 p.p. / les</option>
+                                    </select>
+                                </div>
+
+                                <div v-if="seriesForm.lessonType !== 'privé'">
+                                    <label class="block text-[11px] font-bold uppercase text-gray-400 mb-1">Vaste Medespeler(s)</label>
+                                    <input type="text" v-model="seriesForm.partners" placeholder="Bijv. Mark, Linda" required
+                                           class="w-full p-2.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-xs focus:ring-2 focus:ring-padelGreen outline-none">
+                                </div>
+
+                                <div>
+                                    <label class="block text-[11px] font-bold uppercase text-gray-400 mb-1">Kies Gewenste Startdatum</label>
+                                    <input type="date" v-model="seriesForm.startDate" :min="today" @change="generateSlots('series')"
+                                           class="w-full p-2.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-700 text-xs focus:ring-2 focus:ring-padelGreen outline-none">
+                                </div>
+
+                                <div v-if="seriesForm.startDate">
+                                    <label class="block text-[11px] font-bold uppercase text-gray-400 mb-1">Kies Vaste Tijdstip</label>
+                                    <div class="grid grid-cols-2 gap-2">
+                                        <button v-for="slot in seriesAvailableSlots" :key="slot.time"
+                                                @click="seriesForm.slot = slot.time"
+                                                :disabled="!slot.available"
+                                                type="button"
+                                                :class="[
+                                                    'p-2 rounded-lg border text-xs font-semibold transition',
+                                                    !slot.available ? 'bg-gray-100 dark:bg-gray-700 text-gray-400 line-through cursor-not-allowed' :
+                                                    seriesForm.slot === slot.time ? 'bg-padelGreen text-black border-padelGreen' : 'bg-gray-50 dark:bg-gray-900 border-gray-200 dark:border-gray-700'
+                                                ]">
+                                            {{ slot.time }}
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-gray-50 dark:bg-gray-900/50 p-4 rounded-2xl border border-gray-200 dark:border-gray-700 flex flex-col justify-between">
+                                <div>
+                                    <h4 class="text-xs font-black uppercase text-gray-400 tracking-wider mb-2">Gegenereerd Schema Preview</h4>
+                                    <div v-if="seriesForm.startDate && seriesForm.slot" class="space-y-1 max-h-[180px] overflow-y-auto pr-1">
+                                        <p v-for="(date, i) in calculatedSeriesDates" :key="i" class="text-xs border-b border-gray-200 dark:border-gray-700/60 pb-1 last:border-none">
+                                            <span class="text-padelGreen font-bold">Les {{ i + 1 }}:</span> {{ date }} om {{ seriesForm.slot }} uur
+                                        </p>
+                                    </div>
+                                    <div v-else class="text-xs text-gray-400 italic py-8 text-center">
+                                        Selecteer hiernaast een startdatum and tijdstip om je wekelijkse vaste schema in te zien.
+                                    </div>
+                                </div>
+
+                                <div class="pt-4 border-t border-gray-200 dark:border-gray-700 mt-4">
+                                    <div class="flex justify-between items-center mb-3">
+                                        <span class="text-xs font-bold text-gray-400">Totaalprijs Reeks:</span>
+                                        <span class="text-lg font-black text-padelGreen">€{{ computedSeriesPrice }},00</span>
+                                    </div>
+                                    <button @click="addSeriesToCart" :disabled="!seriesForm.startDate || !seriesForm.slot || (seriesForm.lessonType !== 'privé' && !seriesForm.partners)"
+                                            class="w-full bg-black text-white dark:bg-white dark:text-black text-xs font-bold py-3 rounded-xl hover:opacity-90 transition disabled:opacity-40">
+                                        + Voeg Reeks Toe Aan Overzicht
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="kids" class="bg-gradient-to-r from-gray-900 to-gray-800 text-white py-20 relative overflow-hidden border-t border-b border-gray-800">
+                <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-padelGreen/10 via-transparent to-transparent"></div>
+                <div class="max-w-6xl mx-auto px-4 grid lg:grid-cols-2 gap-12 items-center relative z-10">
+                    <div>
+                        <span class="bg-padelGreen text-black text-xs font-black uppercase tracking-widest px-3 py-1 rounded-md shadow-sm">Next Gen</span>
+                        <h2 class="text-4xl font-black mt-4 mb-6 tracking-tight md:text-5xl">Kids Academy </h2>
+                        <p class="text-lg text-gray-300 mb-6 font-medium">
+                            Ontdek hoe leuk padel is! Onze jeugdtrainingen zijn speciaal ontworzen voor kinderen van 6 tot 17 jaar. Spelenderwijs leren ze de vetste slagen en maken ze nieuwe sportvriendjes.
+                        </p>
+                        <div class="grid grid-cols-2 gap-4 mb-8">
+                            <div class="bg-gray-800/50 backdrop-blur-sm p-4 rounded-2xl border border-gray-700">
+                                <h4 class="font-black text-xl text-padelGreen">Vanaf €15,- <span class="text-xs font-normal text-gray-400">p.p.</span></h4>
+                                <p class="text-xs text-gray-400 mt-1">Super voordelige groepslessen op maat.</p>
+                            </div>
+                            <div class="bg-gray-800/50 backdrop-blur-sm p-4 rounded-2xl border border-gray-700">
+                                <h4 class="font-black text-xl text-padelGreen">Inclusief Rackets</h4>
+                                <p class="text-xs text-gray-400 mt-1">Geen eigen materiaal nodig, wij regelen alles!</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white text-gray-900 dark:bg-gray-800 dark:text-white p-8 rounded-3xl shadow-2xl border border-gray-100 dark:border-gray-700">
+                        <h3 class="text-xl font-bold mb-1">Meld je kind direct aan</h3>
+                        <p class="text-xs text-gray-400 mb-4">Vrijblijvende aanvraag voor een proefles of lescyclus.</p>
+                        <form @submit.prevent="handleKidsRequest" class="space-y-4">
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-[11px] font-bold uppercase text-gray-400 mb-1">Naam Ouder</label>
+                                    <input type="text" required v-model="kidsForm.parentName" class="w-full p-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-sm text-gray-900 dark:text-white">
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-bold uppercase text-gray-400 mb-1">Telefoonnummer</label>
+                                    <input type="tel" required v-model="kidsForm.phone" class="w-full p-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-sm text-gray-900 dark:text-white">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-bold uppercase text-gray-400 mb-1">E-mailadresse</label>
+                                <input type="email" required v-model="kidsForm.email" class="w-full p-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-sm text-gray-900 dark:text-white">
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-[11px] font-bold uppercase text-gray-400 mb-1">Naam Kind</label>
+                                    <input type="text" required v-model="kidsForm.childName" class="w-full p-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-sm text-gray-900 dark:text-white">
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-bold uppercase text-gray-400 mb-1">Leeftijd</label>
+                                    <input type="number" required min="4" max="17" v-model="kidsForm.childAge" class="w-full p-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-sm text-gray-900 dark:text-white">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-bold uppercase text-gray-400 mb-1">Voorkeur Trainingsdag</label>
+                                <select v-model="kidsForm.preferredDay" class="w-full p-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-sm font-medium text-gray-900 dark:text-white">
+                                    <option value="Woensdagmiddag (Kids 6-11 jaar)">Woensdagmiddag (Kids 6-11 jaar)</option>
+                                    <option value="Woensdagmiddag (Teens 12-17 jaar)">Woensdagmiddag (Teens 12-17 jaar)</option>
+                                    <option value="Zaterdagochtend (Kids & Teens)">Zaterdagochtend (Kids & Teens)</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="w-full bg-padelGreen text-black font-black py-4 rounded-xl shadow-lg hover:opacity-90 transition mt-2 text-sm">
+                                Aanmelden voor Kids Academy
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </section>
+
+            <section id="clinics" class="bg-gradient-to-r from-gray-900 to-gray-800 text-white py-20">
+                <div class="max-w-6xl mx-auto px-4 grid lg:grid-cols-2 gap-12 items-center">
+                    <div>
+                        <span class="bg-padelGreen text-black text-xs font-black uppercase tracking-widest px-3 py-1 rounded-md">Corporate Events</span>
+                        <h2 class="text-4xl font-black mt-4 mb-6">Bedrijfsclinics & Teambuilding</h2>
+                        <p class="text-gray-300 mb-6">
+                            Op zoek naar het perfecte sportieve bedrijfsuitje? Julian organiseert volledig verzorgde padelclinics voor groepen van 8 tot 40 personen. 
+                        </p>
+                    </div>
+
+                    <div class="bg-white text-gray-900 dark:bg-gray-800 dark:text-white p-8 rounded-3xl shadow-2xl border border-gray-100 dark:border-gray-700">
+                        <h3 class="text-xl font-bold mb-4">Vraag direct een offerte aan</h3>
+                        <form @submit.prevent="handleClinicRequest" class="space-y-4">
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-[11px] font-bold uppercase text-gray-400 mb-1">Bedrijfsnaam</label>
+                                    <input type="text" required v-model="clinicForm.company" class="w-full p-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white">
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-bold uppercase text-gray-400 mb-1">Contactpersoon *</label>
+                                    <input type="text" required v-model="clinicForm.name" placeholder="Uw volledige naam" class="w-full p-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white">
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-[11px] font-bold uppercase text-gray-400 mb-1">E-mailadres *</label>
+                                    <input type="email" required v-model="clinicForm.email" placeholder="naam@bedrijf.nl" class="w-full p-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white">
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-bold uppercase text-gray-400 mb-1">Telefoonnummer *</label>
+                                    <input type="tel" required v-model="clinicForm.phone" placeholder="Bijv. 0612345678" class="w-full p-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-gray-900 dark:text-white">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-bold uppercase text-gray-400 mb-1">Opmerkingen / Aanvullende Wensen</label>
+                                <textarea v-model="clinicForm.message" rows="3" placeholder="Laat hier eventuele wensen, groepsgrootte of een bericht achter om het voor de club makkelijker te maken..." class="w-full p-3 rounded-xl bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 text-sm focus:ring-2 focus:ring-padelGreen outline-none text-gray-900 dark:text-white"></textarea>
+                            </div>
+                            <button type="submit" class="w-full bg-padelGreen text-black font-black py-4 rounded-xl shadow-lg hover:opacity-90 transition mt-2">
+                                Offerte Voorstel Ontvangen
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </section>
+
+            <section id="trainer" class="max-w-6xl mx-auto px-4 py-20 border-t border-gray-200 dark:border-gray-700">
+                <div class="grid lg:grid-cols-12 gap-12 items-center">
+                    <div class="lg:col-span-5 bg-gradient-to-br from-black to-gray-900 dark:from-gray-800 dark:to-gray-950 p-8 rounded-3xl text-white shadow-2xl relative overflow-hidden border border-gray-800">
+                        <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-padelGreen/10 rounded-full blur-2xl"></div>
+                        <div class="flex items-center gap-4 mb-6">
+                            <div class="w-20 h-20 bg-padelGreen rounded-full flex items-center justify-center text-black text-3xl font-black">JP</div>
+                            <div>
+                                <span class="text-[10px] bg-padelGreen text-black px-2 py-0.5 rounded font-black uppercase tracking-wider">Hoofdtrainer</span>
+                                <h3 class="text-2xl font-black tracking-tight mt-0.5">Julian Van Duijn</h3>
+                                <p class="text-xs text-gray-400">KNLTB Licentie A Gecertificeerd</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="lg:col-span-7 space-y-6">
+                        <span class="text-xs font-bold text-padelGreen uppercase tracking-widest bg-padelGreen/10 px-3 py-1 rounded-md">Ontmoet je Trainer</span>
+                        <h2 class="text-4xl font-black tracking-tight">"Mijn missie is om jouw padel-IQ te verhogen."</h2>
+                        <p class="text-gray-600 dark:text-gray-300 leading-relaxed">
+                            Hoi! Ik ben Julian. Na jarenlang op hoog niveau padel te hebben gespeeld, heb ik me volledig toegelegd op het coachen. Padel is een denksport; het gaat om slim positiespel en ritme. Dankzij onze nieuwe wekelijkse lessenreeksen bouw je gegarandeerd sneller een vast automatisme op!
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="reviews" class="bg-gray-100 dark:bg-gray-800/30 py-20 border-t border-b border-gray-200 dark:border-gray-700 transition-colors">
+                <div class="max-w-4xl mx-auto px-4 text-center">
+                    <div class="flex items-center justify-center gap-2 mb-3">
+                        <span class="text-xl font-bold text-emerald-500">★</span>
+                        <span class="font-black text-sm tracking-widest uppercase">Trustpilot Reviews</span>
+                    </div>
+                    <h2 class="text-3xl font-black md:text-4xl mb-4">Wat Spelers Over Ons Zeggen</h2>
+                    
+                    <div v-if="loadingReviews" class="py-12 flex flex-col items-center justify-center gap-4">
+                        <div class="w-10 h-10 border-4 border-padelGreen border-t-transparent rounded-full animate-spin"></div>
+                    </div>
+
+                    <div v-else class="relative bg-white dark:bg-gray-800 p-8 md:p-10 rounded-3xl shadow-xl border border-gray-200/60 dark:border-gray-700 text-left min-h-[220px] flex flex-col justify-between">
+                        <div>
+                            <div class="flex justify-between items-center mb-4">
+                                <div class="flex gap-1">
+                                    <span v-for="star in reviews[activeReviewIndex].score" :key="star" class="bg-emerald-500 text-white w-5 h-5 rounded flex items-center justify-center text-xs font-bold">★</span>
+                                </div>
+                                <span class="text-xs text-gray-400 font-medium">{{ reviews[activeReviewIndex].datum }}</span>
+                            </div>
+                            <h3 class="font-black text-base md:text-lg text-gray-900 dark:text-white mb-2">"{{ reviews[activeReviewIndex].titel }}"</h3>
+                            <p class="text-gray-600 dark:text-gray-300 text-sm md:text-base leading-relaxed italic">
+                                {{ reviews[activeReviewIndex].tekst }}
+                            </p>
+                        </div>
+
+                        <div class="flex justify-between items-center border-t border-gray-100 dark:border-gray-700 pt-6 mt-6">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 bg-padelGreen text-black font-black rounded-full flex items-center justify-center text-sm uppercase">
+                                    {{ reviews[activeReviewIndex].auteur.charAt(0) }}
+                                </div>
+                                <div>
+                                    <p class="font-bold text-sm text-gray-900 dark:text-white">
+                                        {{ reviews[activeReviewIndex].auteur }}
+                                        <span class="text-[10px] bg-gray-100 dark:bg-gray-700 text-emerald-500 px-1.5 py-0.5 rounded font-bold">✓ Geverifieerd</span>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="flex gap-2">
+                                <button @click="prevReview" class="p-2 rounded-xl bg-gray-100 dark:bg-gray-700 hover:bg-padelGreen hover:text-black transition text-sm font-bold">←</button>
+                                <button @click="nextReview" class="p-2 rounded-xl bg-gray-100 dark:bg-gray-700 hover:bg-padelGreen hover:text-black transition text-sm font-bold">→</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <footer id="contact" class="bg-black text-white py-16">
+                <div class="max-w-6xl mx-auto px-4 grid md:grid-cols-3 gap-12">
+                    <div>
+                        <h3 class="text-2xl font-black text-padelGreen mb-4">Julian Padel</h3>
+                        <p class="text-gray-400 text-sm">Gecertificeerd padeltrainer beschikbaar voor privé-, duo- & groepslessen en schema's.</p>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-lg mb-4">Contactgegevens</h4>
+                        <p class="text-gray-400 text-sm mb-2">📞 Telefoon: <a href="tel:+31612345678" class="text-white hover:underline">+31 6 12345678</a></p>
+                        <p class="text-gray-400 text-sm">📧 E-mail: <a href="mailto:padelwebsite@outlook.com" class="text-white hover:underline">info@julianpadel.nl</a></p>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-lg mb-4">Uren & Locaties</h4>
+                        <p class="text-gray-400 text-sm">Dagen: Maandag - Vrijdag</p>
+                        <p class="text-gray-400 text-sm mt-2">Tijden: 09:00 - 18:00</p>
+                        <p class="text-gray-400 text-sm mt-2">Hoofdlocatie: Hoofddorp</p>
+                    </div>
+                </div>
+                <div class="text-center text-xs text-gray-600 mt-12 border-t border-gray-900 pt-6">
+                    © 2026 Julian Padel. Alle rechten voorbehouden. Beveiligd met SSL & 2FA.
+                </div>
+            </footer>
+        </div>
+
+        <!-- ========================================================================= -->
+        <!-- GEHEEL APARTE PAGINA: SUPER COOL & UITGEBREID SPELERS PORTAAL              -->
+        <!-- ========================================================================= -->
+        <div v-if="activePage === 'portal'" class="min-h-screen bg-slate-950 text-white selection:bg-padelGreen selection:text-black">
+            
+            <!-- Portaal Top Navigatiebalk -->
+            <nav class="border-b border-gray-800 bg-gray-900/40 backdrop-blur-xl sticky top-0 z-40">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <span class="text-xl font-black tracking-wider text-black bg-padelGreen px-3 py-1 rounded-md shadow-[0_0_15px_rgba(159,240,26,0.4)]">PORTAL</span>
+                        <span class="font-bold text-lg text-gray-200 tracking-wide hidden sm:inline-block">Cuchilla Padel Academy</span>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <button @click="activePage = 'home'" class="text-xs font-semibold px-4 py-2 rounded-xl border border-gray-700 bg-gray-800/40 hover:bg-gray-800 transition text-gray-400 hover:text-white">
+                            ← Terug naar Website
+                        </button>
+                        <button @click="logout" class="bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white font-bold text-xs px-4 py-2 rounded-xl transition border border-red-500/20">
+                            Veilig Uitloggen
+                        </button>
+                    </div>
+                </div>
+            </nav>
+
+            <!-- Portaal Dashboard Body -->
+            <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+                
+                <!-- Welkomst Banner met Premium Cyber-Vibe -->
+                <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-gray-900 via-slate-900 to-black p-8 md:p-10 border border-gray-800 shadow-2xl mb-10">
+                    <div class="absolute -right-10 -top-10 w-64 h-64 bg-padelGreen/10 rounded-full blur-[100px] animate-pulse"></div>
+                    <div class="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+                        <div>
+                            <span class="inline-flex items-center gap-1.5 bg-padelGreen/10 text-padelGreen text-[11px] font-black uppercase tracking-widest px-3 py-1 rounded-full border border-padelGreen/20">
+                                <span class="w-2 h-2 rounded-full bg-padelGreen animate-ping"></span> Live Account
+                            </span>
+                            <h2 class="text-3xl md:text-4xl font-black tracking-tight mt-3 text-white">Welkom terug in je HQ</h2>
+                            <p class="text-sm text-gray-400 mt-1 max-w-xl">Ingelogd als <strong class="text-gray-200">{{ user ? user.email : '' }}</strong>. Beheer hier realtime al je geplande trainingen en bekijk direct je volledige betalingshistorie.</p>
+                        </div>
+                        <div class="flex gap-4">
+                            <div class="bg-gray-800/40 border border-gray-700/60 p-4 rounded-2xl min-w-[140px]">
+                                <span class="text-[10px] uppercase font-bold text-gray-500 block">Volgende Training</span>
+                                <span class="text-xs font-bold text-padelGreen mt-1 block">{{ mockDashboard.boeking || 'Geen gepland' }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Core Grid Componenten -->
+                <div class="grid lg:grid-cols-3 gap-8">
+                    
+                    <!-- GEBOEKTE LESSEN OVERZICHT (Links & Midden - Breed) -->
+                    <div class="lg:col-span-2 space-y-8">
+                        <div class="bg-gray-900/40 border border-gray-800/80 backdrop-blur-xl p-6 md:p-8 rounded-3xl shadow-xl">
+                            <div class="flex items-center justify-between mb-6">
+                                <div>
+                                    <h3 class="text-xl font-black tracking-tight text-white flex items-center gap-2">
+                                        <span class="text-xl">📅</span> Mijn Actuele Lessen & Rooster
+                                    </h3>
+                                    <p class="text-xs text-gray-400 mt-0.5">Realtime synchronisatie met de hoofd-agenda van Julian.</p>
+                                </div>
+                                <span class="text-xs bg-gray-800 text-gray-300 font-semibold px-3 py-1 rounded-lg border border-gray-700">{{ mockDashboard.lessons ? mockDashboard.lessons.length : 0 }} Actief</span>
+                            </div>
+
+                            <!-- Kalender/Rooster Layout -->
+                            <div v-if="mockDashboard.lessons && mockDashboard.lessons.length > 0" class="space-y-4">
+                                <div v-for="lesson in mockDashboard.lessons" :key="lesson.id" 
+                                     class="group relative overflow-hidden bg-gradient-to-r from-gray-900 to-slate-900/60 hover:from-gray-900 hover:to-gray-900/80 p-5 rounded-2xl border border-gray-800 hover:border-padelGreen/40 transition-all duration-300 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                    <div class="flex items-start gap-4">
+                                        <div class="w-12 h-12 rounded-xl bg-padelGreen/10 border border-padelGreen/20 flex flex-col items-center justify-center text-padelGreen font-bold shrink-0">
+                                            <span class="text-lg">🎾</span>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-bold text-base text-gray-200 capitalize group-hover:text-padelGreen transition">{{ lesson.type }}</h4>
+                                            <p class="text-xs text-gray-400 mt-1 flex items-center gap-3">
+                                                <span class="flex items-center gap-1">⏱️ {{ lesson.time }} uur</span>
+                                                <span class="flex items-center gap-1">📍 Padel Club Amsterdam</span>
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center justify-between sm:justify-end gap-4 border-t sm:border-none pt-3 sm:pt-0 border-gray-800">
+                                        <div class="text-left sm:text-right">
+                                            <span class="text-xs font-semibold block text-gray-300">{{ lesson.date }}</span>
+                                            <span class="text-[10px] text-emerald-400 font-bold bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20 mt-0.5 inline-block">✓ Bevestigd</span>
+                                        </div>
+                                        <button @click="triggerNotification('Neem voor wijzigingen binnen 24 uur contact op via WhatsApp.')" class="p-2.5 rounded-xl bg-gray-800 hover:bg-gray-700 text-gray-400 hover:text-white border border-gray-700 hover:border-gray-600 transition text-xs font-semibold">
+                                            Wijzigen
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Fallback status -->
+                            <div v-else class="text-center py-16 bg-gray-900/20 rounded-2xl border border-dashed border-gray-800">
+                                <span class="text-3xl block mb-2">📅</span>
+                                <p class="text-gray-400 italic text-sm font-medium">Je hebt op dit moment geen actieve of aankomende lessen geboekt.</p>
+                                <button @click="activePage = 'home'" class="mt-4 bg-padelGreen text-black text-xs font-bold px-4 py-2 rounded-xl hover:opacity-90 transition">Plan Direct Een Les</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- BETAALGESCHIEDENIS COMPONENT (Rechts - Smal) -->
+                    <div class="space-y-8">
+                        <div class="bg-gray-900/40 border border-gray-800/80 backdrop-blur-xl p-6 rounded-3xl shadow-xl">
+                            <div>
+                                <h3 class="text-xl font-black tracking-tight text-white flex items-center gap-2">
+                                    <span class="text-xl text-padelGreen">💳</span> Betaalgeschiedenis
+                                </h3>
+                                <p class="text-xs text-gray-400 mt-0.5">Financieel overzicht van jouw transacties en facturen.</p>
+                            </div>
+
+                            <hr class="border-gray-800/60 my-5">
+
+                            <!-- Transactielijst met bedragen -->
+                            <div class="space-y-3">
+                                <div v-for="invoice in mockInvoices" :key="invoice.id" class="p-4 bg-slate-900/80 rounded-2xl border border-gray-800 hover:border-gray-700/60 transition flex items-center justify-between gap-2">
+                                    <div class="space-y-1">
+                                        <div class="flex items-center gap-1.5">
+                                            <span class="font-bold text-xs text-gray-200">{{ invoice.item }}</span>
+                                        </div>
+                                        <div class="text-[10px] text-gray-400 flex items-center gap-2">
+                                            <span>{{ invoice.date }}</span>
+                                            <span class="text-gray-600">•</span>
+                                            <span class="font-mono text-gray-500">{{ invoice.id }}</span>
+                                        </div>
+                                        <span class="inline-block text-[9px] font-bold px-2 py-0.5 rounded bg-gray-800 text-gray-400 border border-gray-700/50 uppercase tracking-wider">{{ invoice.method }}</span>
+                                    </div>
+                                    <div class="text-right">
+                                        <span class="text-base font-black text-white block">€{{ invoice.amount }},00</span>
+                                        <span class="text-[10px] font-black text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-1.5 py-0.5 rounded mt-1 inline-block">Betaald</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-gray-800/30 border border-gray-700/40 rounded-xl p-3.5 mt-5 flex items-center gap-2 text-xs text-gray-400">
+                                <span>🔒</span>
+                                <p>Al jouw transacties verlopen beveiligd via Stripe inc. Klik op een factuurnummer om de officiële PDF te downloaden.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </main>
+        </div>
+
+        <!-- Spelers Portaal 2FA Auth Modal -->
+        <div v-if="showAuthModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+            <div class="bg-white dark:bg-gray-800 p-8 rounded-3xl max-w-md w-full shadow-2xl relative border border-gray-100 dark:border-gray-700 text-gray-900 dark:text-white">
+                <button @click="showAuthModal = false" class="absolute top-4 right-4 text-xl">✕</button>
+                
+                <h3 class="text-2xl font-black text-center mb-4">Spelers Portaal</h3>
+                
+                <form @submit.prevent="handleAuthSubmit" class="space-y-4">
+                    <div v-if="!twoFactorStep">
+                        <label class="block text-xs font-bold uppercase mb-1">E-mailadres</label>
+                        <input type="email" required v-model="authForm.email" placeholder="jouw@email.com" class="w-full p-3 rounded-xl border bg-gray-50 dark:bg-gray-700 text-sm focus:ring-2 focus:ring-padelGreen outline-none text-gray-900 dark:text-white">
+                        <p class="text-xs text-gray-500 mt-2">We sturen een eenmalige 2FA verificatiecode naar dit e-mailadres om veilig in te loggen.</p>
+                    </div>
+                    <div v-else>
+                        <label class="block text-sm font-bold text-center uppercase mb-2">Voer de 6-cijferige verificatiecode in</label>
+                        <input type="text" maxlength="6" required v-model="authCode" placeholder="123456" class="w-full p-3 rounded-xl border text-center font-mono text-2xl tracking-widest bg-gray-50 dark:bg-gray-700 font-bold text-gray-900 dark:text-white">
+                        <p class="text-xs text-center text-gray-500 mt-2">Controleer je mailbox (en eventueel je ongewenste e-mailmap).</p>
+                    </div>
+
+                    <button type="submit" class="w-full bg-padelGreen text-black font-bold py-3 rounded-xl transition shadow-md hover:bg-opacity-90">
+                        {{ twoFactorStep ? 'Verifieer Code & Log in' : 'Verstuur Inlogcode' }}
+                    </button>
+                    
+                    <button v-if="twoFactorStep" type="button" @click="twoFactorStep = false" class="w-full text-center text-sm text-gray-500 underline mt-2">
+                        Terug naar e-mail invoer
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Notificatie component -->
+        <div v-if="notification.show" :class="`fixed bottom-6 right-6 z-50 p-4 rounded-2xl shadow-2xl flex items-center gap-3 border text-white transition-all duration-300 ${notification.type === 'success' ? 'bg-green-600 border-green-400' : 'bg-red-600 border-red-400'}`">
+            <span class="text-xl">🔔</span>
+            <div><p class="text-sm font-semibold">{{ notification.message }}</p></div>
+        </div>
+    </div>
+
+    <script>
+        const { createApp, ref, onMounted, computed } = Vue;
+
+        createApp({ setup() {
+                const darkMode = ref(true); 
+                const showAuthModal = ref(false);
+                const twoFactorStep = ref(false);
+                const authMode = ref('login'); 
+                const user = ref(null);
+                const today = new Date().toISOString().split('T')[0];
+                
+                // Pagina beheer: 'home' voor de reguliere website, 'portal' voor het losstaande klantenpaneel
+                const activePage = ref('home');
+
+                // Aangepaste notificatie objectstructuur voor dynamische types (success/error)
+                const notification = ref({ show: false, message: '', type: 'success' });
+
+                const loadingReviews = ref(true);
+                const activeReviewIndex = ref(0);
+                const reviews = ref([
+                    { auteur: "Sander de Jong", titel: "Geweldige bandeja techniek", tekst: "Julian legt de tactiek achter padel super helder uit. Mijn bandeja is na 2 lessen al 10 keer beter.", score: 5, datum: "14 Juni 2026" },
+                    { auteur: "Lieke Sanders", titel: "Heerlijk dat vaste schema!", tekst: "De 8-weken reeks op woensdagavond bevalt super. Geen gedoe met wekelijks opnieuw plannen.", score: 5, datum: "18 Mei 2026" }
+                ]);
+
+                // Form States
+                const customerForm = ref({ name: '', email: '', phone: '' });
+                const bookingForm = ref({ date: '', slot: '', rentRacket: false, lessonType: 'privé', level: 'beginner', partners: '' });
+                const seriesForm = ref({ weeks: 4, lessonType: 'privé', partners: '', startDate: '', slot: '' });
+                
+                const cart = ref([]);
+                const authForm = ref({ email: '' });
+                const clinicForm = ref({ company: '', name: '', email: '', phone: '', message: '' });
+                const kidsForm = ref({ parentName: '', phone: '', email: '', childName: '', childAge: '', preferredDay: 'Woensdagmiddag (Kids 6-11 jaar)' });
+
+                const availableSlots = ref([]);
+                const seriesAvailableSlots = ref([]);
+                const authCode = ref('');
+
+                // Gekoppeld aan backend data voor lessen tabel (Video's en Rittenkaarten verwijderd)
+                const mockDashboard = ref({
+                    boeking: 'Woensdag 24 Juni om 19:00 uur',
+                    lessons: [
+                        { id: 'L-9821', type: 'Privé training', date: '24-06-2026', time: '19:00 - 20:00' },
+                        { id: 'L-4412', type: 'Duo training', date: '01-07-2026', time: '16:00 - 17:00' }
+                    ]
+                });
+
+                // Nieuwe mock data specifiek voor de uitgebreide betaalgeschiedenis
+                const mockInvoices = ref([
+                    { id: 'INV-2026-042', item: 'Vaste Lessenreeks (4 Weken)', amount: 320, date: '12 Juni 2026', method: 'iDEAL (Stripe)' },
+                    { id: 'INV-2026-039', item: 'Losse Privé Les + Rackethuur', amount: 85, date: '28 Mei 2026', method: 'Creditcard' },
+                    { id: 'INV-2026-011', item: 'Losse Groepstraining', amount: 20, date: '14 April 2026', method: 'iDEAL (Stripe)' }
+                ]);
+
+                const lesPrijzen = { 'privé': 80, 'duo': 40, 'groep': 20 };
+
+                const rittenkaarten = [
+                    { titel: "4-Weken Reeks", sub: "Vaste wekelijkse training", weeks: 4, prijsDisplay: "€320,-", popular: false },
+                    { titel: "8-Weken Reeks", sub: "Ideaal voor maximaal resultaat", weeks: 8, prijsDisplay: "€640,-", popular: true }
+                ];
+
+                const tarieven = [
+                    { titel: "Privé Training", prijs: "€ 80,00", beschrijving: "1-op-1 intensieve focus op techniek, tactiek en voetenwerk." },
+                    { titel: "Duo Training", prijs: "€ 40,00", beschrijving: "Met je vaste partner trainen op positiespel. (Prijs p.p.)" },
+                    { titel: "Groepstraining", prijs: "€ 20,00", beschrijving: "Met 4 personen competitiesituaties oefenen. (Prijs p.p.)" }
+                ];
+
+                const isCustomerFormValid = computed(() => {
+                    return customerForm.value.name.trim() !== '' && customerForm.value.email.trim() !== '' && customerForm.value.phone.trim() !== '';
+                });
+
+                const computedSeriesPrice = computed(() => {
+                    const prijsPerLes = lesPrijzen[seriesForm.value.lessonType] || 80;
+                    return prijsPerLes * seriesForm.value.weeks;
+                });
+
+                const calculatedSeriesDates = computed(() => {
+                    if (!seriesForm.value.startDate) return [];
+                    const dates = [];
+                    let current = new Date(seriesForm.value.startDate);
+                    
+                    for (let i = 0; i < seriesForm.value.weeks; i++) {
+                        const yyyy = current.getFullYear();
+                        const mm = String(current.getMonth() + 1).padStart(2, '0');
+                        const dd = String(current.getDate()).padStart(2, '0');
+                        dates.push(`${dd}-${mm}-${yyyy}`);
+                        current.setDate(current.getDate() + 7); 
+                    }
+                    return dates;
+                });
+
+                const showNotification = (msg, type = 'success') => {
+                    notification.value = { show: true, message: msg, type };
+                    setTimeout(() => { notification.value.show = false; }, 4000);
+                };
+
+                const triggerNotification = (msg) => {
+                    showNotification(msg, 'success');
+                };
+
+                const generateSlots = (type) => {
+                    const uren = ["09:00 - 10:00", "11:00 - 12:00", "16:00 - 17:00", "19:00 - 20:00", "20:00 - 21:00"];
+                    const generated = uren.map(tijd => ({ time: tijd, available: Math.random() > 0.2 }));
+                    if (type === 'single') {
+                        availableSlots.value = generated;
+                    } else {
+                        seriesAvailableSlots.value = generated;
+                    }
+                };
+
+                const addLessonToCart = () => {
+                    const basisPrijs = lesPrijzen[bookingForm.value.lessonType] || 80;
+                    const berekendePrijs = basisPrijs + (bookingForm.value.rentRacket ? 5 : 0);
+
+                    cart.value.push({
+                        isSeries: false, date: bookingForm.value.date, slot: bookingForm.value.slot,
+                        lessonType: bookingForm.value.lessonType, level: bookingForm.value.level,
+                        partners: bookingForm.value.partners, rentRacket: bookingForm.value.rentRacket, price: berekendePrijs
+                    });
+
+                    triggerNotification("Losse les toegevoegd aan winkelwagen!");
+                    bookingForm.value.slot = '';
+                };
+
+                const addSeriesToCart = () => {
+                    cart.value.push({
+                        isSeries: true, weeks: seriesForm.value.weeks, date: seriesForm.value.startDate,
+                        slot: seriesForm.value.slot, lessonType: seriesForm.value.lessonType,
+                        level: 'Zie profiel', partners: seriesForm.value.partners, rentRacket: false, price: computedSeriesPrice.value
+                    });
+
+                    triggerNotification(`${seriesForm.value.weeks}-Weken vaste reeks toegevoegd aan winkelwagen!`);
+                    seriesForm.value.startDate = '';
+                    seriesForm.value.slot = '';
+                };
+
+                const removeLessonFromCart = (index) => {
+                    cart.value.splice(index, 1);
+                    triggerNotification("Item verwijderd uit overzicht.");
+                };
+
+                const totaleCartPrijs = computed(() => {
+                    return cart.value.reduce((total, item) => total + item.price, 0);
+                });
+
+                const toggleDarkMode = () => {
+                    darkMode.value = !darkMode.value;
+                    document.documentElement.classList.toggle('dark', darkMode.value);
+                };
+
+                const nextReview = () => { activeReviewIndex.value = (activeReviewIndex.value + 1) % reviews.value.length; };
+                const prevReview = () => { activeReviewIndex.value = (activeReviewIndex.value - 1 + reviews.value.length) % reviews.value.length; };
+
+                // Stuurt de speler bij succesvolle auth direct naar de aparte pagina
+                const handleAuthClick = () => {
+                    if (user.value) { 
+                        activePage.value = 'portal';
+                    } else { 
+                        showAuthModal.value = true; 
+                    }
+                };
+
+                const handleAuthSubmit = async () => {
+                    if (!authForm.value.email) return alert("Vul een e-mailadres in.");
+
+                    if (twoFactorStep.value === false) {
+                        try {
+                            const res = await fetch('http://localhost:5500/api/auth/request-code', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ email: authForm.value.email })
+                            });
+                            const data = await res.json();
+                            if (data.success) {
+                                twoFactorStep.value = true;
+                                showNotification("Verificatiecode is succesvol verzonden naar je mail!", "success");
+                            } else {
+                                showNotification("Fout bij aanvragen: " + data.error, "error");
+                            }
+                        } catch (err) {
+                            showNotification("Kan geen verbinding maken met de backend server op poort 5500.", "error");
+                        }
+                    } else {
+                        try {
+                            const res = await fetch('http://localhost:5500/api/auth/verify', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ email: authForm.value.email, code: authCode.value })
+                            });
+                            const data = await res.json();
+                            if (data.success) {
+                                user.value = { email: authForm.value.email };
+                                if (data.lessons && data.lessons.length > 0) {
+                                    mockDashboard.value.lessons = data.lessons;
+                                }
+                                showAuthModal.value = false;
+                                activePage.value = 'portal'; // Switcht direct naar de aparte portaal-pagina
+                                showNotification("Succesvol ingelogd in het spelers portaal!", "success");
+                            } else {
+                                showNotification(data.message || "De ingevoerde code is onjuist of verlopen.", "error");
+                            }
+                        } catch (err) {
+                            showNotification("Verificatiefout met de server.", "error");
+                        }
+                    }
+                };
+                
+                const logout = () => { 
+                    user.value = null; 
+                    twoFactorStep.value = false;
+                    authCode.value = '';
+                    authForm.value.email = '';
+                    activePage.value = 'home'; // Schakelt terug naar de hoofdpagina bij uitloggen
+                    showNotification("Je bent nu uitgelogd.", "success"); 
+                };
+
+                const handleCheckout = (type) => {
+                    triggerNotification("Stripe Gateway wordt opgestart...");
+                    setTimeout(() => {
+                        alert(`Betalingsverzoek succesvol gegenereerd!\n\nNaam: ${customerForm.value.name}\nTotaalbedrag: €${totaleCartPrijs.value},00\n\nUw vaste speeldata zijn direct gereserveerd in de agenda van Julian.\nEr is zojuist een automatische mail naar ${customerForm.value.email} verzonden met de definitieve lestijden en de officiële factuur van "Cuchilla Padel Academy".`);
+                        cart.value = [];
+                    }, 1000);
+                };
+
+                const handleClinicRequest = async () => {
+                    try {
+                        const res = await fetch('http://localhost:5500/api/forms/clinic', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(clinicForm.value)
+                        });
+                        const data = await res.json();
+                        if (data.success) {
+                            showNotification("Offerteaanvraag voor de clinic succesvol ontvangen!", "success");
+                            clinicForm.value = { company: '', name: '', email: '', phone: '', message: '' };
+                        } else {
+                            showNotification("Fout: " + data.error, "error");
+                        }
+                    } catch (err) {
+                        showNotification("Kan het clinic formulier niet verzenden naar de server.", "error");
+                    }
+                };
+
+                const handleKidsRequest = async () => {
+                    try {
+                        const res = await fetch('http://localhost:5500/api/forms/kids', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(kidsForm.value)
+                        });
+                        const data = await res.json();
+                        if (data.success) {
+                            showNotification("Aanmelding voor de Kids Academy succesvol verwerkt!", "success");
+                            kidsForm.value = { parentName: '', phone: '', email: '', childName: '', childAge: '', preferredDay: 'Woensdagmiddag (Kids 6-11 jaar)' };
+                        } else {
+                            showNotification("Fout: " + data.error, "error");
+                        }
+                    } catch (err) {
+                        showNotification("Kan het aanmeldformulier niet verzenden naar de server.", "error");
+                    }
+                };
+
+                onMounted(() => {
+                    setTimeout(() => { loadingReviews.value = false; }, 1000);
+                    document.documentElement.classList.add('dark');
+                    setInterval(() => { if (!loadingReviews.value) { nextReview(); } }, 8000);
+                });
+
+                return {
+                    activePage, darkMode, toggleDarkMode, customerForm, bookingForm, seriesForm, cart, authForm, clinicForm, kidsForm, today,
+                    availableSlots, seriesAvailableSlots, generateSlots, addLessonToCart, addSeriesToCart, removeLessonFromCart,
+                    handleCheckout, handleClinicRequest, handleKidsRequest, totaleCartPrijs, isCustomerFormValid, computedSeriesPrice,
+                    calculatedSeriesDates, tarieven, rittenkaarten, showAuthModal, twoFactorStep, authMode, handleAuthClick,
+                    handleAuthSubmit, logout, user, notification, mockDashboard, mockInvoices, loadingReviews, activeReviewIndex,
+                    reviews, nextReview, prevReview, authCode, triggerNotification
+                };
+            }
+        }).mount('#app');
+    </script>
+
+    <style>
+        [v-cloak] { display: none !important; }
+    </style>
+</body>
+</html>
